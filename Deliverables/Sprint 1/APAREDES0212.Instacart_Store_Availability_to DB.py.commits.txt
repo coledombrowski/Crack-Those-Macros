@@ -1,0 +1,93 @@
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  1) import re
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  2) import pyodbc
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  3) import pandas as pd
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  4) import numpy as np
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  5) import os
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  6) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  7) pd.set_option('display.max_columns', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  8) pd.set_option('display.width', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  9) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 10) # Define the directory containing the CSV files
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 11) directory = r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\Food Urls'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 12) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 13) # List to hold individual DataFrames
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 14) dfs = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 15) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 16) # Loop through the files in the directory
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 17) for filename in os.listdir(directory):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 18)     if filename.endswith('.csv'):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 19)         file_path = os.path.join(directory, filename)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 20)         df = pd.read_csv(file_path)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 21)         dfs.append(df)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 22) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 23) # Combine all DataFrames in the list into a single DataFrame
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 24) df = pd.concat(dfs, ignore_index=True)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 25) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 26) # Replace spaces in DataFrame column names with underscores
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 27) df.columns = [col.strip().replace(' ', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 28) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 29) # Replace all np.nan with None and convert NumPy types to Python types for SQL compatibility
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 30) df = df.where(pd.notna(df), None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 31) df = df.applymap(lambda x: float(x) if isinstance(x, (int, float, np.float64, np.int64)) else x)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 32) def duplicate_to_key(table: pd.DataFrame, column_name: str) -> pd.DataFrame:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 33)     if column_name in table.columns:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 34)         table['join_key'] = table[column_name]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 35)     else:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 36)         raise ValueError(f"The column '{column_name}' does not exist in the DataFrame.")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 37)     return table
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 38) df = duplicate_to_key(df,'URLs')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 39) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 40) # Database connection setup
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 41) server = 'crackthosemacros.database.windows.net'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 42) database = 'crackthosemacros'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 43) username = 'admin_p'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 44) password = 'PurchaseCard!#600'  # Ensure password is securely handled in actual use
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 45) driver = '{SQL Server}'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 46) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 47) conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 48) connection = pyodbc.connect(conn_str)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 49) cursor = connection.cursor()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 50) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 51) # Retrieve existing column names from the table
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 52) table_name = 'Stores'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 53) query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 54) existing_columns = [row[0] for row in cursor.execute(query).fetchall()]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 55) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 56) # Check for any new columns in the DataFrame not in the SQL table
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 57) new_columns = [col for col in df.columns if col not in existing_columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 58) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 59) # SQL to add new columns to the table, defaulting to a generous VARCHAR type
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 60) for col in new_columns:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 61)     alter_query = f"ALTER TABLE {table_name} ADD {col} VARCHAR(MAX)"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 62)     print(alter_query)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 63)     cursor.execute(alter_query)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 64) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 65) # Commit changes to add columns
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 66) connection.commit()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 67) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 68) # Prepare and execute the insert query
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 69) insert_query_template = f"INSERT INTO {table_name} ({', '.join(df.columns)}) VALUES "
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 70) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 71) # Iterate over each record in the dataframe
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 72) for record in df.to_records(index=False):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 73)     values_list = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 74)     for value in record:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 75)         # Check for NaN (specifically for pandas data)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 76)         if pd.isna(value):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 77)             values_list.append('NULL')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 78)         elif isinstance(value, str):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 79)             escaped_value = value.replace("'", "''")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 80)             values_list.append(f"'{escaped_value}'")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 81)         else:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 82)             values_list.append(str(value))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 83)     values_str = ', '.join(values_list)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 84)     full_query = insert_query_template + f"({values_str})"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 85)     try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 86)         cursor.execute(full_query)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 87)         connection.commit()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 88)     except Exception as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 89)         print(full_query)  # Optional: for debugging
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 90)         print("An error occurred:", e)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 91) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 92) cursor.close()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 93) connection.close()

@@ -1,0 +1,5 @@
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 1) CREATE TABLE [dbo].[UserLog] (
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 2)     Username VARCHAR(255),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 3)     food_id NVARCHAR(MAX) NOT NULL,
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 4)     insert_datetime DATETIME NOT NULL
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 5) );

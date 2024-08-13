@@ -1,0 +1,16 @@
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  1) import pyodbc
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  2) import pandas as pd
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  3) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  4) server = 'crackthosemacros.database.windows.net'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  5) database = 'crackthosemacros'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  6) username = 'viewonly'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  7) password = 'CrackThoseMacros!2024'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  8) driver = '{SQL Server}'  # Adjust driver as needed
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  9) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 10) conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 11) connection = pyodbc.connect(conn_str)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 12) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 13) query = "SELECT * FROM [dbo].[v_All_Food]"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 14) df = pd.read_sql_query(query, connection)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 15) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 16) print(df)

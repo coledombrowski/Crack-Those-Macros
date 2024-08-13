@@ -1,0 +1,170 @@
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   1) import re
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   2) import pyodbc
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   3) import pandas as pd
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   4) import numpy as np
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   5) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   6) # Define the path to the CSV file
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   7) file_path = r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\RawNutritionFacts.csv'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   8) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   9) # Load the CSV file into a DataFrame
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  10) df = pd.read_csv(file_path)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  11) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  12) # Convert all text in 'NF_Raw' to uppercase
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  13) df['NF_Raw'] = df['NF_Raw'].str.upper()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  14) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  15) # Split the 'NF_Raw' column by '\n' into a list of strings
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  16) df['split'] = df['NF_Raw'].str.split('\n')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  17) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  18) #Define a function to process each list and return a dictionary
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  19) def process_list(lst):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  20)     result = {}
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  21)     for item in lst:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  22)         #  Regex to handle numbers and ranges, and to filter out invalid entries
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  23)         match = re.search(r'^(.*?)\s*([-\d\.]+)\s*(.*?)$', item)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  24)         if match:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  25)             key = match.group(1).strip() + ' ' + match.group(3).strip()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  26)             value = match.group(2).strip()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  27)             # Check and process the value if it's a range or a valid number
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  28)             if '-' in value:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  29)                 try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  30)                     numbers = [float(num) for num in value.split('-') if re.match(r'^\d+\.?\d*$', num)]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  31)                     if numbers:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  32)                         average_value = sum(numbers) / len(numbers)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  33)                         result[key] = average_value
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  34)                 except ValueError:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  35)                     continue  # Skip if conversion fails
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  36)             else:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  37)                 try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  38)                     if re.match(r'^\d+\.?\d*$', value):  # Check if value is a valid float
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  39)                         result[key] = float(value)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  40)                 except ValueError:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  41)                     continue  # Skip if conversion fails
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  42)     return result
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  43) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  44) # Apply transformations
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  45) df_expanded = pd.json_normalize(df['split'].apply(process_list))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  46) df['Price'] = df['Price'].str.replace('$', '').astype(float)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  47) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  48) #Concatenate the new columns to the original DataFrame
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  49) df = pd.concat([df, df_expanded], axis=1)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  50) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  51) # Drop columns not needed
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  52) df.drop(columns=['split',' %','PERCENT DAILY VALUES ARE BASED ON A ,000 CALORIE DIET.'], inplace=True)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  53) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  54) # Replace invalid characters in DataFrame column names with underscores
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  55) df.columns = [col.strip().replace(' ', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  56) df.columns = [col.strip().replace('.', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  57) df.columns = [col.strip().replace('(', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  58) df.columns = [col.strip().replace(')', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  59) df.columns = [col.strip().replace('/', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  60) df.columns = [col.strip().replace(',', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  61) df.columns = [col.strip().replace(':', '_') for col in df.columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  62) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  63) # Replace all np.nan with None and convert NumPy types to Python types for SQL compatibility
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  64) df = df.where(pd.notna(df), None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  65) df = df.applymap(lambda x: float(x) if isinstance(x, (int, float, np.float64, np.int64)) else x)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  66) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  67) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  68) def Pivot_Servings(df):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  69)     # Filter columns that include any form of "serving" or "servings"
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  70)     serving_cols = [col for col in df.columns if 'serving' in col.lower() and 'size' not in col.lower()]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  71) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  72)     # Melt the dataframe so each serving column becomes a row
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  73)     df_melted = df.melt(id_vars=[col for col in df.columns if col not in serving_cols],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  74)                         value_vars=serving_cols,
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  75)                         var_name='Serving_Per_Type',
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  76)                         value_name='Serving_Per_Value')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  77) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  78)     df_melted['Serving_Per_Value'] = pd.to_numeric(df_melted['Serving_Per_Value'], errors='coerce')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  79) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  80)     # Remove rows where 'Serving_Value' is NaN or less than or equal to zero
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  81)     df_melted = df_melted[df_melted['Serving_Per_Value'] > 0]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  82) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  83)     return df_melted
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  84) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  85) def Pivot_Serving_Size(df):
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  86)     # Filter columns that include any form of "serving" or "servings"
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  87)     serving_cols = [col for col in df.columns if 'serving' in col.lower() and 'per' not in col.lower()]
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  88) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  89)     # Melt the dataframe so each serving column becomes a row
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  90)     df_melted = df.melt(id_vars=[col for col in df.columns if col not in serving_cols],
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  91)                         value_vars=serving_cols,
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  92)                         var_name='Serving_Size_Type',
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  93)                         value_name='Serving_Size_Value')
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  94) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  95)     # Convert 'Serving_Value' to numeric, setting errors='coerce' to handle non-numeric values
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  96)     df_melted['Serving_Size_Value'] = pd.to_numeric(df_melted['Serving_Size_Value'], errors='coerce')
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  97) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  98)     # Remove rows where 'Serving_Value' is NaN or less than or equal to zero
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  99)     df_melted = df_melted[df_melted['Serving_Size_Value'] > 0]
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 100) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 101)     return df_melted
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 102) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 103) df = Pivot_Servings(df)
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 104) df = Pivot_Serving_Size(df)
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 105) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 106) df['Item_ID'] = 'NONE'
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 107) df['IRON_MG'] = 0.00
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 108) df['CALCIUM_MG'] =0.00
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 109) df['CALORIES_FROM_FAT'] = 0.00
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 110) df['POTASSIUM_MG'] = 0.00
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 111) df['VITAMIN_D_MCG'] = 0.00
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 112) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 113) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 114) csv_file_path = r"C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\TestDev\NutritionFacts_Test2.csv"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 115) df.to_csv(csv_file_path, index=False)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 116) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 117) # Database connection setup
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 118) server = 'crackthosemacros.database.windows.net'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 119) database = 'crackthosemacros'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 120) username = 'admin_p'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 121) password = input()  # Ensure password is securely handled in actual use
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 122) driver = '{SQL Server}'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 123) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 124) conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 125) connection = pyodbc.connect(conn_str)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 126) cursor = connection.cursor()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 127) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 128) # Retrieve existing column names from the table
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 129) table_name = 'G_Products'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 130) query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 131) existing_columns = [row[0] for row in cursor.execute(query).fetchall()]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 132) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 133) # Check for any new columns in the DataFrame not in the SQL table
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 134) new_columns = [col for col in df.columns if col not in existing_columns]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 135) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 136) # SQL to add new columns to the table, defaulting to a generous VARCHAR type
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 137) for col in new_columns:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 138)     alter_query = f"ALTER TABLE {table_name} ADD {col} VARCHAR(MAX)"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 139)     print(alter_query)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 140)     cursor.execute(alter_query)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 141) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 142) # Commit changes to add columns
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 143) connection.commit()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 144) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 145) # Prepare and execute the insert query
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 146) insert_query_template = f"INSERT INTO {table_name} ({', '.join(df.columns)}) VALUES "
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 147) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 148) # Iterate over each record in the dataframe
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 149) for record in df.to_records(index=False):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 150)     values_list = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 151)     for value in record:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 152)         # Check for NaN (specifically for pandas data)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 153)         if pd.isna(value):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 154)             values_list.append('NULL')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 155)         elif isinstance(value, str):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 156)             escaped_value = value.replace("'", "''")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 157)             values_list.append(f"'{escaped_value}'")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 158)         else:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 159)             values_list.append(str(value))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 160)     values_str = ', '.join(values_list)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 161)     full_query = insert_query_template + f"({values_str})"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 162)     try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 163)         cursor.execute(full_query)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 164)         connection.commit()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 165)     except Exception as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 166)         print(full_query)  # Optional: for debugging
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 167)         print("An error occurred:", e)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 168) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 169) cursor.close()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 170) connection.close()

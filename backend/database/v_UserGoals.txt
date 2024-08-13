@@ -1,0 +1,33 @@
+CREATE VIEW v_UserGoals AS
+SELECT
+    Username,
+    U.Goal,
+    U.Weight,
+    U.Goal_Amount,
+    U.Goal_Pound,
+    SUM(Calories) AS TOTAL_CALORIES
+FROM
+    Users U
+LEFT JOIN
+    [dbo].[NutritionPlan] N
+ON
+    UPPER(REPLACE(U.Goal, ' ', '_')) = UPPER(N.Goal)
+    AND ISNULL(U.Goal_Amount, 0) = ISNULL(N.Amount, 0)
+    AND ISNULL(U.Weight, 0) BETWEEN
+        CASE
+            WHEN PATINDEX('%[0-9]-%[0-9]%', ISNULL(N.WeightRange, '')) > 0
+            THEN CAST(SUBSTRING(N.WeightRange, 1, CHARINDEX('-', N.WeightRange) - 1) AS INT)
+            ELSE 0
+        END
+        AND CASE
+            WHEN PATINDEX('%[0-9]-%[0-9]%', ISNULL(N.WeightRange, '')) > 0
+            THEN CAST(SUBSTRING(N.WeightRange, CHARINDEX('-', N.WeightRange) + 1, CHARINDEX(' ', N.WeightRange + ' ') - CHARINDEX('-', N.WeightRange) - 1) AS INT)
+            ELSE 1000
+        END
+    AND ISNULL(U.Goal_Pound, 0) = ISNULL(N.Pounds, 0)
+GROUP BY
+    Username,
+    U.Goal,
+    U.Weight,
+    U.Goal_Amount,
+    U.Goal_Pound;

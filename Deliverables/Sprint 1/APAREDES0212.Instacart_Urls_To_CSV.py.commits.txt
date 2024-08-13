@@ -1,0 +1,161 @@
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   1) from selenium import webdriver
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   2) from selenium.webdriver.firefox.service import Service
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   3) from selenium.webdriver.firefox.options import Options
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   4) from selenium.webdriver.support.ui import WebDriverWait
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   5) from selenium.webdriver.support import expected_conditions as EC
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   6) from selenium.webdriver.common.by import By
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   7) from selenium.common.exceptions import NoSuchElementException
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   8) import pandas as pd
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   9) import pickle
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  10) import time
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  11) import random
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  12) import re
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  13) from selenium.webdriver.common.keys import Keys
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  14) import os
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  15) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  16) pd.set_option('display.max_columns', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  17) pd.set_option('display.width', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  18) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  19) # Define the directory containing the CSV files
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  20) directory = r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\Food Urls'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  21) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  22) # List to hold individual DataFrames
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  23) dfs = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  24) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  25) # Loop through the files in the directory
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  26) for filename in os.listdir(directory):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  27)     if filename.endswith('.csv'):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  28)         file_path = os.path.join(directory, filename)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  29)         df = pd.read_csv(file_path)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  30)         dfs.append(df)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  31) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  32) # Combine all DataFrames in the list into a single DataFrame
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  33) combined_df = pd.concat(dfs, ignore_index=True)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  34) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  35) URL_list = combined_df['URLs'].tolist()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  36) URL_list = list(set(URL_list))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  37) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  38) options = Options()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  39) options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  40) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  41) service = Service(executable_path=r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\geckodriver.exe')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  42) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  43) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  44) user_agents = [
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  45)     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  46)     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  47)     "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  48) ]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  49) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  50) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  51) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  52) def getNutritionFacts(URL):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  53)     sleep_time_int = random.uniform(2, 6)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  54)     sleep_time_dec = random.uniform(1, 100)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  55)     sleep_time = sleep_time_int + (sleep_time_dec/100)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  56)     time.sleep(sleep_time)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  57) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  58)     attempts = 0
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  59)     max_attempts = 3  # Set a maximum number of retries
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  60)     while attempts < max_attempts:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  61)         user_agent = random.choice(user_agents)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  62)         # Set the chosen user agent
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  63)         options.set_preference("general.useragent.override", user_agent)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  64)         driver = webdriver.Firefox(service=service, options=options)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  65)         driver.get(URL)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  66)         driver.implicitly_wait(10)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  67) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  68)         try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  69)             name_xpath = '/html/body/div[1]/div/main/div[2]/div/div[2]/div[1]/div[1]/h1'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  70)             name_loc = driver.find_element(By.XPATH, name_xpath)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  71)             name_txt = name_loc.text
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  72)         except NoSuchElementException as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  73)             name_txt = 'Name not found'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  74) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  75)         try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  76)             price_xpath = '//*[@id="regular_price"]'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  77)             price_loc = driver.find_element(By.XPATH, price_xpath)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  78)             price_txt = price_loc.text
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  79)         except NoSuchElementException as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  80)             try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  81)                 price_xpath = '//*[@id="sale_price"]'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  82)                 price_loc = driver.find_element(By.XPATH, price_xpath)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  83)                 price_txt = price_loc.text
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  84)             except NoSuchElementException as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  85)                 price_txt = 'Price not found'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  86) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  87)         try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  88)             xpath = '/html/body/div[1]/div/main/div[4]/div/div[2]/div'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  89)             nutrition_facts_table = driver.find_element(By.XPATH, xpath)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  90)             NF = nutrition_facts_table.text
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  91)         except NoSuchElementException as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  92)             NF = 'No Nutrition Facts'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  93) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  94)         driver.close()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  95) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  96)         if 'Nutrition Facts' in NF:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  97)             row_tuple = (name_txt, price_txt, NF)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  98)             print(row_tuple)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  99)             return row_tuple
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 100)         else:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 101)             attempts += 1
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 102)             print("Retrying, attempt", attempts)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 103) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 104)     NF = 'Max Attempts Reached'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 105)     row_tuple = (name_txt, price_txt, NF)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 106)     print(row_tuple)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 107)     try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 108)         return row_tuple
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 109)     except:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 110)         return ('', '', 'Max Attempts Reached')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 111) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 112) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 113) # Define file paths
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 114) csv_file = 'RawNutritionFacts.csv'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 115) pkl_file = 'RawNutritionFacts.pkl'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 116) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 117) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 118) # Function to save data
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 119) def save_data(df, csv_file, pkl_file, mode='a'):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 120)     header = not os.path.exists(csv_file) if mode == 'a' else False
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 121)     df.to_csv(csv_file, mode=mode, header=header, index=False)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 122)     df.to_pickle(pkl_file)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 123) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 124) def main():
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 125)     # Check if the CSV and pickle files already exist and load them; otherwise, create a new DataFrame
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 126)     if os.path.exists(csv_file) and os.path.exists(pkl_file):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 127)         df = pd.read_pickle(pkl_file)  # Load the DataFrame from pickle for consistency
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 128)     else:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 129)         df = pd.DataFrame(columns=['URL', 'Name','Price','NF_Raw'])  # Create a new DataFrame if files do not exist
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 130) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 131)     # Initialize batch processing
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 132)     batch_size = 20
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 133)     batch_data = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 134) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 135)     # Process each URL
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 136)     for url in URL_list:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 137)         product_info = getNutritionFacts(url)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 138)         if product_info[2] != 'No Nutrition Facts' and product_info[2] != 'Max Attempts Reached':
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 139)             new_row = {'URL': url, 'Name': product_info[0],'Price': product_info[1],'NF_Raw': product_info[2]}
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 140)             batch_data.append(new_row)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 141) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 142)         # Check if the batch is full
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 143)         if len(batch_data) >= batch_size:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 144)             # Convert batch data to DataFrame and append to the main DataFrame
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 145)             batch_df = pd.DataFrame(batch_data)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 146)             df = df.append(batch_df, ignore_index=True)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 147)             # Save to files
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 148)             save_data(batch_df, csv_file, pkl_file)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 149)             # Clear batch data
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 150)             batch_data = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 151) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 152)     # Process any remaining data in batch_data after the loop
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 153)     if batch_data:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 154)         batch_df = pd.DataFrame(batch_data)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 155)         df = df.append(batch_df, ignore_index=True)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 156)         save_data(batch_df, csv_file, pkl_file)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 157) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 158)     # Save the final DataFrame to ensure all data is recorded
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 159)     save_data(df, csv_file, pkl_file, mode='w')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 160) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 161) main()

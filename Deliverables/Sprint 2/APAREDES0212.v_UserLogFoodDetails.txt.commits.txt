@@ -1,0 +1,11 @@
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  1) CREATE VIEW v_UserLogFoodDetails AS
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  2) SELECT
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  3)     UserLog.Username,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  4)     UserLog.insert_datetime,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  5)     v.*
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  6) FROM
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  7)     UserLog
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  8) LEFT JOIN
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  9)     v_All_Food_Standardized AS v
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 10) ON
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 11)     v.food_id = UserLog.food_id;

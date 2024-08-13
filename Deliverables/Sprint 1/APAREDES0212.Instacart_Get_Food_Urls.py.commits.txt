@@ -1,0 +1,282 @@
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   1) from selenium import webdriver
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   2) from selenium.webdriver.firefox.service import Service
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   3) from selenium.webdriver.firefox.options import Options
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   4) from selenium.webdriver.support.ui import WebDriverWait
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   5) from selenium.webdriver.support import expected_conditions as EC
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   6) from selenium.webdriver.common.by import By
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   7) import pandas as pd
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   8) import time
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   9) import re
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  10) from selenium.webdriver.common.keys import Keys
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  11) pd.set_option('display.max_columns', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  12) pd.set_option('display.width', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  13) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  14) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  15) Instacart_Stores = {'Food Lion':[   'https://www.instacart.com/store/food-lion-now-convenience/collections/2703-frozen-entrees',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  16)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2707-frozen-breakfast',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  17)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2706-frozen-meat',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  18)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2704-frozen-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  19)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2705-frozen-vegetables',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  20)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2708-frozen-fruit',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  21)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2822-meats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  22)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2819-salads',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  23)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2823-sides',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  24)                                     'https://www.instacart.com/store/food-lion-now-convenience/collections/2818-sandwiches'],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  25)                     'Publix':[   'https://www.instacart.com/store/publix/collections/beef',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  26)                                     'https://www.instacart.com/store/publix/collections/pork',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  27)                                     'https://www.instacart.com/store/publix/collections/603-chicken',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  28)                                     'https://www.instacart.com/store/publix/collections/fish',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  29)                                     'https://www.instacart.com/store/publix/collections/shellfish',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  30)                                     'https://www.instacart.com/store/publix/collections/hot-dogs-sausages',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  31)                                     'https://www.instacart.com/store/publix/collections/968-lamb',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  32)                                     'https://www.instacart.com/store/publix/collections/604-turkey',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  33)                                     'https://www.instacart.com/store/publix/collections/668-meat-alternatives',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  34)                                     'https://www.instacart.com/store/publix/collections/fresh-vegetables',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  35)                                     'https://www.instacart.com/store/publix/collections/fresh-fruits',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  36)                                  'https://www.instacart.com/store/publix/collections/ice-cream',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  37)                                  'https://www.instacart.com/store/publix/collections/apps-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  38)                                  'https://www.instacart.com/store/publix/collections/pizza-meals',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  39)                                  'https://www.instacart.com/store/publix/collections/frozen-breakfast',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  40)                                  'https://www.instacart.com/store/publix/collections/meat-seafood',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  41)                                  'https://www.instacart.com/store/publix/collections/vegetables',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  42)                                  'https://www.instacart.com/store/publix/collections/frozen-fruits',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  43)                                  'https://www.instacart.com/store/publix/collections/desserts',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  44)                                  'https://www.instacart.com/store/publix/collections/breads-doughs',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  45)                                  'https://www.instacart.com/store/publix/collections/cookies-brownies',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  46)                                  'https://www.instacart.com/store/publix/collections/buns-rolls',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  47)                                  'https://www.instacart.com/store/publix/collections/cakes-pies',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  48)                                  'https://www.instacart.com/store/publix/collections/breakfast-pastries',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  49)                                  'https://www.instacart.com/store/publix/collections/bread',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  50)                                  'https://www.instacart.com/store/publix/collections/specialty-desserts',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  51)                                  'https://www.instacart.com/store/publix/collections/bagels-english-muffins',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  52)                                  'https://www.instacart.com/store/publix/collections/frozen-baked-goods',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  53)                                  'https://www.instacart.com/store/publix/collections/tortillas-flatbreads',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  54)                                  'https://www.instacart.com/store/publix/collections/9798-cookies-sweet-treats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  55)                                  'https://www.instacart.com/store/publix/collections/chips',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  56)                                  'https://www.instacart.com/store/publix/collections/chocolate-candy',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  57)                                  'https://www.instacart.com/store/publix/collections/9797-crackers',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  58)                                  'https://www.instacart.com/store/publix/collections/popcorn',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  59)                                  'https://www.instacart.com/store/publix/collections/popcorn',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  60)                                  'https://www.instacart.com/store/publix/collections/snack-bars',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  61)                                  'https://www.instacart.com/store/publix/collections/9796-dried-fruit-fruit-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  62)                                  'https://www.instacart.com/store/publix/collections/jerky',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  63)                                  'https://www.instacart.com/store/publix/collections/873-more-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  64)                                  'https://www.instacart.com/store/publix/collections/9804-fruit-cups-applesauce',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  65)                                  'https://www.instacart.com/store/publix/collections/9805-pudding-gelatin',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  66)                                  'https://www.instacart.com/store/publix/collections/962-boxed-meals',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  67)                                  'https://www.instacart.com/store/publix/collections/pasta',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  68)                                  'https://www.instacart.com/store/publix/collections/rices-grains',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  69)                                  'https://www.instacart.com/store/publix/collections/noodles',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  70)                                  'https://www.instacart.com/store/publix/collections/dried-beans',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  71)                                  'https://www.instacart.com/store/publix/collections/seeds',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  72)                                  'https://www.instacart.com/store/publix/collections/eggs',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  73)                                  'https://www.instacart.com/store/publix/collections/cheese',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  74)                                  'https://www.instacart.com/store/publix/collections/yogurt',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  75)                                  'https://www.instacart.com/store/publix/collections/3102-chicken',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  76)                                  'https://www.instacart.com/store/publix/collections/3096-sandwiches-wraps',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  77)                                  'https://www.instacart.com/store/publix/collections/3101-salads',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  78)                                  'https://www.instacart.com/store/publix/collections/3105-meal-kits',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  79)                                  'https://www.instacart.com/store/publix/collections/3097-pizza-meals',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  80)                                  'https://www.instacart.com/store/publix/collections/3098-sushi',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  81)                                  'https://www.instacart.com/store/publix/collections/3100-soups',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  82)                                  'https://www.instacart.com/store/publix/collections/3103-other-prepared-meats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  83)                                  'https://www.instacart.com/store/publix/collections/3099-party-platters',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  84)                                  'https://www.instacart.com/store/publix/collections/3104-snack-packs',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  85)                                  'https://www.instacart.com/store/publix/collections/soups',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  86)                                  'https://www.instacart.com/store/publix/collections/canned-beans',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  87)                                  'https://www.instacart.com/store/publix/collections/canned-fruits',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  88)                                  'https://www.instacart.com/store/publix/collections/canned-fish',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  89)                                  'https://www.instacart.com/store/publix/collections/canned-meals',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  90)                                  'https://www.instacart.com/store/publix/collections/canned-meat',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  91)                                  'https://www.instacart.com/store/publix/collections/634-cereal',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  92)                                  'https://www.instacart.com/store/publix/collections/oatmeal',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  93)                                  'https://www.instacart.com/store/publix/collections/granola',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  94)                                  'https://www.instacart.com/store/publix/collections/nut-butters',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  95)                                  'https://www.instacart.com/store/publix/collections/toaster-pastries',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  96)                                  'https://www.instacart.com/store/publix/collections/breakfast-bars',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  97)                                 'https://www.instacart.com/store/publix/collections/pancake-waffle',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  98)                                  'https://www.instacart.com/store/publix/collections/3090-deli-meats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  99)                                  'https://www.instacart.com/store/publix/collections/34807-meat-cheese-combos',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 100)                                  'https://www.instacart.com/store/publix/collections/3091-cheese',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 101)                                  'https://www.instacart.com/store/publix/collections/rc-ready_to_cook_meals_for_one',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 102)                                  'https://www.instacart.com/store/publix/collections/rc-ready_to_cook_meal_kits',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 103)                                  'https://www.instacart.com/store/publix/collections/rc-ready_to_cook_ready_to_cook'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 104) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 105) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 106)                                  ],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 107)                     'Kroger':[   'https://www.instacart.com/store/kroger-delivery-now/collections/2703-frozen-entrees',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 108)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2706-frozen-meat',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 109)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2707-frozen-breakfast',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 110)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2704-frozen-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 111)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2705-frozen-vegetables',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 112)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2708-frozen-fruit',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 113)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2822-meats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 114)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2819-salads',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 115)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2821-sushi',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 116)                                     'https://www.instacart.com/store/kroger-delivery-now/collections/2818-sandwiches',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 117)                                  'https://www.instacart.com/store/kroger-delivery-now/collections/2820-soups',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 118)                                  'https://www.instacart.com/store/kroger-delivery-now/collections/2823-sides'],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 119)                     'Aldi':['https://www.instacart.com/store/aldi-express/collections/2706-frozen-meat',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 120)                             'https://www.instacart.com/store/aldi-express/collections/2703-frozen-entrees',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 121)                             'https://www.instacart.com/store/aldi-express/collections/2707-frozen-breakfast',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 122)                             'https://www.instacart.com/store/aldi-express/collections/2704-frozen-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 123)                             'https://www.instacart.com/store/aldi-express/collections/2708-frozen-fruit',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 124)                             'https://www.instacart.com/store/aldi-express/collections/2705-frozen-vegetables',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 125)                             'https://www.instacart.com/store/aldi-express/collections/2669-breakfast-pastries',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 126)                             'https://www.instacart.com/store/aldi-express/collections/2668-bread',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 127)                             'https://www.instacart.com/store/aldi-express/collections/2670-cookies-treats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 128)                             'https://www.instacart.com/store/aldi-express/collections/2671-buns-rolls',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 129)                             'https://www.instacart.com/store/aldi-express/collections/2672-tortillas'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 130)                             ],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 131)                     'The Fresh Market':[
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 132)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2705-frozen-vegetables',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 133)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2704-frozen-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 134)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2703-frozen-entrees',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 135)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2706-frozen-meat',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 136)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2707-frozen-breakfast',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 137)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2708-frozen-fruit',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 138)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2666-more-cheese',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 139)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2656-cheddar',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 140)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2658-mozzarella',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 141)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2657-shredded-cheese',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 142)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2661-swiss',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 143)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2662-pepperjack',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 144)                         'https://www.instacart.com/store/the-fresh-market-express/collections/2659-american'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 145)                     ],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 146)                     'Target':[
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 147)                         'https://www.instacart.com/store/target-fast-delivery/collections/2703-frozen-entrees',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 148)                         'https://www.instacart.com/store/target-fast-delivery/collections/2706-frozen-meat',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 149)                         'https://www.instacart.com/store/target-fast-delivery/collections/2704-frozen-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 150)                         'https://www.instacart.com/store/target-fast-delivery/collections/2707-frozen-breakfast',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 151)                         'https://www.instacart.com/store/target-fast-delivery/collections/2708-frozen-fruit',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 152)                         'https://www.instacart.com/store/target-fast-delivery/collections/2705-frozen-vegetables',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 153)                         'https://www.instacart.com/store/target-fast-delivery/collections/2682-chocolate',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 154)                         'https://www.instacart.com/store/target-fast-delivery/collections/2680-chips',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 155)                         'https://www.instacart.com/store/target-fast-delivery/collections/2681-candy',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 156)                         'https://www.instacart.com/store/target-fast-delivery/collections/2687-granola-bars',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 157)                         'https://www.instacart.com/store/target-fast-delivery/collections/2683-crackers',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 158)                         'https://www.instacart.com/store/target-fast-delivery/collections/2685-popcorn',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 159)                         'https://www.instacart.com/store/target-fast-delivery/collections/2689-fruit-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 160)                         'https://www.instacart.com/store/target-fast-delivery/collections/2688-pudding',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 161)                         'https://www.instacart.com/store/target-fast-delivery/collections/2686-pretzels',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 162)                         'https://www.instacart.com/store/target-fast-delivery/collections/2684-cookies'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 163)                     ],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 164)                     'CVS': [
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 165)                         'https://www.instacart.com/store/cvs/collections/938-ice-cream-desserts',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 166)                         'https://www.instacart.com/store/cvs/collections/940-meals',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 167)                         'https://www.instacart.com/store/cvs/collections/939-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 168)                         'https://www.instacart.com/store/cvs/collections/950-candy-chocolate',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 169)                         'https://www.instacart.com/store/cvs/collections/948-chips',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 170)                         'https://www.instacart.com/store/cvs/collections/949-cookies-baked-treats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 171)                         'https://www.instacart.com/store/cvs/collections/953-nuts-dried-fruits',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 172)                         'https://www.instacart.com/store/cvs/collections/952-jerky-popcorn',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 173)                         'https://www.instacart.com/store/cvs/collections/955-snack-bars',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 174)                         'https://www.instacart.com/store/cvs/collections/956-crackers',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 175)                         'https://www.instacart.com/store/cvs/collections/954-snack-mixes',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 176)                         'https://www.instacart.com/store/cvs/collections/959-more-snacks'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 177) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 178)                     ],
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 179)                     'Walgreens': [
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 180)                         'https://www.instacart.com/store/walgreens/collections/938-ice-cream-desserts',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 181)                         'https://www.instacart.com/store/walgreens/collections/940-meals',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 182)                         'https://www.instacart.com/store/walgreens/collections/939-snacks',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 183)                         'https://www.instacart.com/store/walgreens/collections/942-more-frozen',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 184)                         'https://www.instacart.com/store/walgreens/collections/950-candy-chocolate',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 185)                         'https://www.instacart.com/store/walgreens/collections/948-chips',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 186)                         'https://www.instacart.com/store/walgreens/collections/949-cookies-baked-treats',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 187)                         'https://www.instacart.com/store/walgreens/collections/952-jerky-popcorn',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 188)                         'https://www.instacart.com/store/walgreens/collections/953-nuts-dried-fruits',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 189)                         'https://www.instacart.com/store/walgreens/collections/956-crackers',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 190)                         'https://www.instacart.com/store/walgreens/collections/955-snack-bars',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 191)                         'https://www.instacart.com/store/walgreens/collections/954-snack-mixes',
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 192)                         'https://www.instacart.com/store/walgreens/collections/959-more-snacks'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 193)                     ]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 194) }
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 195) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 196) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 197) def getItems(IC_URL):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 198) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 199)     options = Options()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 200)     options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 201) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 202)     service = Service(executable_path=r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\geckodriver.exe')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 203)     driver = webdriver.Firefox(service=service, options=options)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 204)     driver.get(IC_URL)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 205)     driver.implicitly_wait(10)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 206)     try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 207)         # Wait for the element to be present
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 208)         time.sleep(1.5)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 209)         element = WebDriverWait(driver, 10).until(
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 210)             EC.presence_of_element_located((By.XPATH, "/html/body/div[6]/div"))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 211)         )
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 212)         # Execute JavaScript to remove the element
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 213)         driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 214)         element = WebDriverWait(driver, 10).until(
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 215)             EC.presence_of_element_located((By.XPATH, "/html/body/div[7]/div"))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 216)         )
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 217)         # Execute JavaScript to remove the element
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 218)         driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 219)     except Exception as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 220)         print(e)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 221)     # driver.execute_script("document.body.style.zoom='30%'")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 222)     # Create a var of the window
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 223)     # Set the focus to the browser rather than the web content
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 224)     driver.set_context("chrome")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 225)     # Create a var of the window
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 226)     win = driver.find_element(by=By.TAG_NAME, value="html")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 227)     win.send_keys(Keys.CONTROL + "-")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 228)     win.send_keys(Keys.CONTROL + "-")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 229)     win.send_keys(Keys.CONTROL + "-")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 230)     win.send_keys(Keys.CONTROL + "-")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 231)     win.send_keys(Keys.CONTROL + "-")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 232)     # Set the focus back to content to re-engage with page elements
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 233)     driver.set_context("content")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 234)     time.sleep(7.5)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 235) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 236)     elements = driver.find_elements(By.TAG_NAME, 'a')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 237) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 238)     # List to store extracted values
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 239)     product_ids = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 240) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 241)     # Regex pattern to extract the product ID
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 242)     pattern = re.compile(r'\/products\/(\d+)-')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 243) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 244)     # Loop through found <a> elements and extract IDs
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 245)     for element in elements:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 246)         href = element.get_attribute('href')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 247)         if href:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 248)             match = pattern.search(href)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 249)             if match:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 250)                 product_ids.append(match.group(1))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 251) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 252)     # Print all product IDs
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 253)     driver.close()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 254)     print(product_ids)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 255)     return product_ids
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 256) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 257) def getItemURLs(Store_Name):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 258)     df = pd.DataFrame(columns=['Store', 'URLs'])
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 259) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 260)     URL_List = Instacart_Stores[Store_Name]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 261)     Base = 'https://www.instacart.com/products/'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 262)     for URL in URL_List:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 263)         product_list = getItems(URL)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 264)         product_urls = [Base + s for s in product_list]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 265)         unique_urls = list(set(product_urls))  # Removing duplicates
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 266)         # Append new rows to the DataFrame for each unique URL
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 267)         for url in unique_urls:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 268)             df = df.append({'Store': Store_Name, 'URLs': url}, ignore_index=True)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 269)     return df
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 270) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 271) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 272) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 273) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 274) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 275) combined_df = pd.DataFrame()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 276) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 277) for key in Instacart_Stores:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 278)     df = getItemURLs(key)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 279)     csv_file_path = f"{key}_product_URLs.csv"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 280)     df.to_csv(csv_file_path, index=False)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 281)     print(f'{key} complete!')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 282)     time.sleep(.5)

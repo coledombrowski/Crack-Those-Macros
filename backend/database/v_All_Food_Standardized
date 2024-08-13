@@ -1,0 +1,32 @@
+CREATE VIEW v_All_Food_Standardized AS
+SELECT
+    DISTINCT
+    HASHBYTES('SHA2_256', CONCAT(
+        ISNULL(CAST(Store AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(Name AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(Serving_Size_Value AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(Serving_Per_Value AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(Serving_Size_Type AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(Calories AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(TOTAL_FAT_G AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(CHOLESTEROL_MG AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(SODIUM_MG AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(TOTAL_CARBOHYDRATE_G AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(DIETARY_FIBER_G AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(SUGARS_G AS NVARCHAR(MAX)), ''),
+        ISNULL(CAST(PROTEIN_G AS NVARCHAR(MAX)), '')
+    )) AS food_id,
+    Store,
+    Name,
+    Serving_Size_Value * Serving_Per_Value AS SERVING_SIZE,
+    REPLACE(Serving_Size_Type, 'SERVING_SIZE_', '') AS SERVING_SIZE_TYPE,
+    Calories * Serving_Per_Value AS CALORIES,
+    TOTAL_FAT_G * Serving_Per_Value AS TOTAL_FAT,
+    CHOLESTEROL_MG * Serving_Per_Value AS CHOLESTEROL,
+    SODIUM_MG * Serving_Per_Value AS SODIUM,
+    TOTAL_CARBOHYDRATE_G * Serving_Per_Value AS TOTAL_CARBOHYDRATE,
+    DIETARY_FIBER_G * Serving_Per_Value AS FIBER,
+    SUGARS_G * Serving_Per_Value AS SUGARS,
+    PROTEIN_G * Serving_Per_Value AS PROTEIN
+FROM
+    [dbo].[v_All_Food];

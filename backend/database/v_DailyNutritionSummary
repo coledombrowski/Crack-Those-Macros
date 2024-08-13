@@ -1,0 +1,16 @@
+CREATE VIEW v_DailyNutritionSummary AS
+SELECT
+    UPPER(Username) AS Username,
+    CAST(insert_datetime AS DATE) AS LogDate,
+    SUM(CALORIES) AS TotalCalories,
+    SUM(TOTAL_FAT) AS TotalFat,
+    SUM(CHOLESTEROL) AS TotalCholesterol,
+    SUM(SODIUM) AS TotalSodium,
+    SUM(TOTAL_CARBOHYDRATE) AS TotalCarbohydrates,
+    SUM(FIBER) AS TotalFiber,
+    SUM(SUGARS) AS TotalSugars,
+    SUM(PROTEIN) AS TotalProtein
+FROM
+    v_UserLogFoodDetails
+GROUP BY
+    UPPER(Username), CAST(insert_datetime AS DATE);

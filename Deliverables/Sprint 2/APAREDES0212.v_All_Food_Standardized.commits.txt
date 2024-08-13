@@ -1,0 +1,32 @@
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400  1) CREATE VIEW v_All_Food_Standardized AS
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400  2) SELECT
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400  3)     DISTINCT
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400  4)     HASHBYTES('SHA2_256', CONCAT(
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400  5)         ISNULL(CAST(Store AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400  6)         ISNULL(CAST(Name AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400  7)         ISNULL(CAST(Serving_Size_Value AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400  8)         ISNULL(CAST(Serving_Per_Value AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400  9)         ISNULL(CAST(Serving_Size_Type AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 10)         ISNULL(CAST(Calories AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 11)         ISNULL(CAST(TOTAL_FAT_G AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 12)         ISNULL(CAST(CHOLESTEROL_MG AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 13)         ISNULL(CAST(SODIUM_MG AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 14)         ISNULL(CAST(TOTAL_CARBOHYDRATE_G AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 15)         ISNULL(CAST(DIETARY_FIBER_G AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 16)         ISNULL(CAST(SUGARS_G AS NVARCHAR(MAX)), ''),
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 17)         ISNULL(CAST(PROTEIN_G AS NVARCHAR(MAX)), '')
+0e150f9b (aparedes0212 2024-07-25 00:30:42 -0400 18)     )) AS food_id,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 19)     Store,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 20)     Name,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 21)     Serving_Size_Value * Serving_Per_Value AS SERVING_SIZE,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 22)     REPLACE(Serving_Size_Type, 'SERVING_SIZE_', '') AS SERVING_SIZE_TYPE,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 23)     Calories * Serving_Per_Value AS CALORIES,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 24)     TOTAL_FAT_G * Serving_Per_Value AS TOTAL_FAT,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 25)     CHOLESTEROL_MG * Serving_Per_Value AS CHOLESTEROL,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 26)     SODIUM_MG * Serving_Per_Value AS SODIUM,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 27)     TOTAL_CARBOHYDRATE_G * Serving_Per_Value AS TOTAL_CARBOHYDRATE,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 28)     DIETARY_FIBER_G * Serving_Per_Value AS FIBER,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 29)     SUGARS_G * Serving_Per_Value AS SUGARS,
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 30)     PROTEIN_G * Serving_Per_Value AS PROTEIN
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 31) FROM
+af9c88fd (aparedes0212 2024-07-16 23:16:22 -0400 32)     [dbo].[v_All_Food];

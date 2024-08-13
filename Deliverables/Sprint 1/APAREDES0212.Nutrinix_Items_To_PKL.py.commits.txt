@@ -1,0 +1,201 @@
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   1) from selenium import webdriver
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   2) from selenium.webdriver.firefox.service import Service
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   3) from selenium.webdriver.support.ui import WebDriverWait
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   4) from selenium.webdriver.support import expected_conditions as EC
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   5) from selenium.webdriver.firefox.options import Options
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   6) from bs4 import BeautifulSoup
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   7) import time
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   8) import re
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400   9) import random
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  10) import pandas as pd
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  11) import numpy as np
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  12) import pickle
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  13) from concurrent.futures import ThreadPoolExecutor
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  14) import string
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  15) import os
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  16) from threading import Lock
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  17) from selenium.common.exceptions import NoSuchElementException
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  18) from selenium.webdriver.common.by import By
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  19) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  20) pd.set_option('display.max_columns', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  21) pd.set_option('display.width', None)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  22) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  23) lock = Lock()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  24) file_lock = Lock()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  25) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  26) # Define the file path
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  27) file_path = r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\item_ids.csv'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  28) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  29) # Import the CSV file into a pandas DataFrame
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  30) df = pd.read_csv(file_path)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  31) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  32) # Add a new column 'URL' that concatenates the specified format
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  33) df['URL'] = df.apply(lambda row: f"https://www.nutritionix.com/i/{row['Brand']}/item/{row['Item_ID']}", axis=1)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  34) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  35) # Split DataFrame into parts
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  36) dfs = np.array_split(df, 7)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  37) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  38) user_agents = [
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  39)     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  40)     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  41)     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/91.0.864.48",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  42)     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  43)     "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  44)     "Mozilla/5.0 (iPad; CPU OS 13_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Mobile/15E148 Safari/604.1",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  45)     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.2 Safari/605.1.15",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  46)     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  47)     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/92.0.902.67",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  48)     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Safari/605.1.15",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  49)     "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  50)     "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1 Mobile/15E148 Safari/604.1",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  51)     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  52)     "Mozilla/5.0 (Android 10; Mobile; rv:88.0) Gecko/88.0 Firefox/88.0",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  53)     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  54)     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/93.0.961.38",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  55)     "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  56)     "Mozilla/5.0 (iPad; CPU OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  57)     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7",
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  58)     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0"
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  59) ]
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  60) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  61) # Declare the global variable
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  62) picked_agents = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  63) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  64) def add_agent(agent):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  65)     global picked_agents
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  66)     with lock:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  67)         picked_agents.append(agent)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  68) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  69) def remove_agent(agent):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  70)     global picked_agents
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  71)     with lock:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  72)         if agent in picked_agents:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  73)             picked_agents.remove(agent)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  74) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  75) file_names = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  76) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  77) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  78) def pickle_df(df,prefix = ''):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  79)     with file_lock:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  80)         filename = ''
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  81)         if len(file_names) >= 14:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  82)             filename = random.choice(file_names)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  83)         while filename == '':
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  84)             random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  85)             if random_string not in file_names:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  86)                 file_names.append(random_string)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  87)                 filename = random_string
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  88)                 break
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  89)         filename = prefix + filename + '.pkl'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  90)         # Resource-safe file handling
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  91)         try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  92)             if os.path.exists(filename):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  93)                 with open(filename, 'rb') as f:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  94)                     existing_df = pd.read_pickle(f)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  95)                 updated_df = pd.concat([existing_df, df])
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  96)                 updated_df.to_pickle(filename)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  97)                 print(f"successful save over {filename}")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  98)             else:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400  99)                 filename = filename
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 100)                 df.to_pickle(filename)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 101)                 print(f"successful save {filename}")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 102)         except Exception as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 103)             print(f"Error while handling the pickle file: {e}")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 104) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 105) def webscrape(data_frame):
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 106)     driver = None
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 107) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 108)     try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 109) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 110)         scraped_data = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 111)         i = 0
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 112) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 113)         for row in data_frame.itertuples():
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 114)             url = row.URL
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 115)             try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 116)                 user_agent = ''
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 117)                 while user_agent == '':
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 118)                     random_agent = random.choice(user_agents)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 119)                     if random_agent not in picked_agents:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 120)                         add_agent(random_agent)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 121)                         user_agent = random_agent
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 122)                         break
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 123) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 124)                 # Navigate to the URL
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 125)                 try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 126)                     options = Options()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 127)                     options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 128)                     service = Service(
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 129)                         executable_path=r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\geckodriver.exe')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 130)                     options.add_argument("--headless")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 131)                     options.set_preference("general.useragent.override", user_agent)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 132)                     driver = webdriver.Firefox(service=service, options=options)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 133)                     driver.get(url)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 134)                 except:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 135)                     pickle_df(pd.DataFrame(scraped_data))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 136)                     i = 0
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 137)                     scraped_data = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 138)                     options = Options()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 139)                     options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 140)                     service = Service(
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 141)                         executable_path=r'C:\Users\2cona\OneDrive\Advanced Software Engineering\Local Dev\geckodriver.exe')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 142)                     options.add_argument("--headless")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 143)                     options.set_preference("general.useragent.override", user_agent)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 144)                     driver = webdriver.Firefox(service=service, options=options)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 145)                     driver.get(url)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 146) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 147)                 time.sleep(random.uniform(2, 6))  # Simplified sleep call
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 148) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 149) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 150)                 try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 151)                     name_xpath = '/html/body/div[2]/div/div[2]/div[1]/div[1]/div[2]/h1'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 152)                     name_loc = driver.find_element(By.XPATH, name_xpath)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 153)                     name_txt = name_loc.text
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 154)                 except NoSuchElementException as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 155)                     name_txt = 'Name not found'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 156) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 157)                 try:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 158)                     xpath = '//*[@id="nutrition-label"]'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 159)                     nutrition_facts_table = driver.find_element(By.XPATH, xpath)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 160)                     NF = nutrition_facts_table.text
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 161)                 except NoSuchElementException as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 162)                     NF = 'No Nutrition Facts'
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 163) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 164)                 scraped_data.append({
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 165)                     'Brand': row.Brand,
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 166)                     'Item_ID': row.Item_ID,
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 167)                     'URL': url,
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 168)                     'Name': str(name_txt),
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 169)                     'NF': str(NF)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 170)                 })
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 171) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 172)                 i += 1
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 173)                 if i > 20:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 174)                     pickle_df(pd.DataFrame(scraped_data))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 175)                     i = 0
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 176)                     scraped_data = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 177) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 178)                 print(f"finish scraping {url}")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 179)             except Exception as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 180)                 print(f"Failure {e}")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 181)                 pickle_df(pd.DataFrame(scraped_data),'error')
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 182)                 i = 0
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 183)                 scraped_data = []
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 184)             finally:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 185)                 remove_agent(user_agent)  # Clean up the used user agent
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 186)                 if driver:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 187)                     driver.close()
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 188) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 189)     except Exception as e:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 190)         print(f"Critical Failure {e}")
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 191)     finally:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 192)         if scraped_data:  # Save any remaining data
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 193)             pickle_df(pd.DataFrame(scraped_data))
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 194) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 195) 
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 196) # Use ThreadPoolExecutor to run the pickling in parallel
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 197) with ThreadPoolExecutor(max_workers=14) as executor:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 198)     # dfs is a list of DataFrame parts
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 199)     for df_split in dfs:
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 200)         executor.submit(webscrape, df_split)
+11975999 (aparedes0212 2024-07-10 20:49:55 -0400 201) 

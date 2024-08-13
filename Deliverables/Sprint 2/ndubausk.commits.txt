@@ -1,0 +1,78 @@
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  1) import React from 'react';
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  2) import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  3) import 'react-circular-progressbar/dist/styles.css';
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  4) 
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  5) 
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  6) const DailyMacros = () => {
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  7)     const value = 50;
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  8)     return (
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700  9)         <div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 10)         <div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 11)           Breakfest{value} / 100
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 12)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 13)         <div style={{ width: '100px', height: '100px' }}>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 14)           <CircularProgressbar
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 15)             value={value}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 16)             text={`${value}/Total`}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 17)             styles={buildStyles({
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 18)               textSize: '16px',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 19)               pathColor: `rgba(62, 152, 199, ${value / 100})`,
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 20)               textColor: '#f88',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 21)               trailColor: '#d6d6d6',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 22)               backgroundColor: '#3e98c7',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 23)             })}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 24)           />
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 25)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 26)         <div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 27)           Lunch{value} / 100
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 28)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 29)         <div style={{ width: '100px', height: '100px' }}>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 30)           <CircularProgressbar
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 31)             value={70}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 32)             text={`${70}%`}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 33)             styles={buildStyles({
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 34)               textSize: '16px',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 35)               pathColor: `rgba(62, 152, 199, ${70 / 100})`,
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 36)               textColor: '#f88',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 37)               trailColor: '#d6d6d6',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 38)               backgroundColor: '#3e98c7',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 39)             })}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 40)           />
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 41)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 42)         <div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 43)           Dinner {value} / 100
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 44)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 45)         <div style={{ width: '100px', height: '100px' }}>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 46)           <CircularProgressbar
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 47)             value={value}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 48)             text={`${value}%`}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 49)             styles={buildStyles({
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 50)               textSize: '16px',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 51)               pathColor: `rgba(62, 152, 199, ${value / 100})`,
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 52)               textColor: '#f88',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 53)               trailColor: '#d6d6d6',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 54)               backgroundColor: '#3e98c7',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 55)             })}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 56)           />
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 57)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 58)         <div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 59)           Total {value} / 100
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 60)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 61)         <div style={{ width: '100px', height: '100px' }}>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 62)           <CircularProgressbar
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 63)             value={value}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 64)             text={`${value}%`}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 65)             styles={buildStyles({
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 66)               textSize: '16px',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 67)               pathColor: `rgba(62, 152, 199, ${value / 100})`,
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 68)               textColor: '#f88',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 69)               trailColor: '#d6d6d6',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 70)               backgroundColor: '#3e98c7',
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 71)             })}
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 72)           />
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 73)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 74)         </div>
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 75)       );
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 76)     };
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 77) 
+24a01c15 (Nick Dubauskas 2024-07-25 16:39:21 -0700 78) export default DailyMacros;

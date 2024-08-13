@@ -1,0 +1,61 @@
+CREATE VIEW v_Breakfast AS
+SELECT *
+FROM v_All_Food_Standardized
+WHERE Name LIKE '%egg%'
+   OR Name LIKE '%bacon%'
+   OR Name LIKE '%toast%'
+   OR Name LIKE '%cereal%'
+   OR Name LIKE '%pancake%'
+   OR Name LIKE '%waffle%'
+   OR Name LIKE '%oatmeal%'
+   OR Name LIKE '%yogurt%'
+   OR Name LIKE '%fruit%'
+   OR Name LIKE '%sausage%'
+   OR Name LIKE '%bagel%'
+   OR Name LIKE '%coffee%'
+   OR Name LIKE '%tea%'
+   OR Name LIKE '%milk%'
+   OR Name LIKE '%juice%'
+   OR Name LIKE '%Breakfast%';
+
+CREATE VIEW v_Lunch AS
+SELECT *
+FROM v_All_Food_Standardized
+WHERE Name LIKE '%sandwich%'
+   OR Name LIKE '%salad%'
+   OR Name LIKE '%burger%'
+   OR Name LIKE '%pizza%'
+   OR Name LIKE '%soup%'
+   OR Name LIKE '%wrap%'
+   OR Name LIKE '%chicken%'
+   OR Name LIKE '%pasta%'
+   OR Name LIKE '%rice%'
+   OR Name LIKE '%taco%'
+   OR Name LIKE '%burrito%'
+   OR Name LIKE '%steak%'
+   OR Name LIKE '%fish%'
+   OR Name LIKE '%noodle%'
+   OR Name LIKE '%lunch%'
+   OR Name LIKE '%vegetable%';
+
+CREATE VIEW v_Dinner AS
+SELECT *
+FROM v_All_Food_Standardized
+WHERE Name LIKE '%steak%'
+   OR Name LIKE '%pasta%'
+   OR Name LIKE '%salmon%'
+   OR Name LIKE '%chicken%'
+   OR Name LIKE '%pizza%'
+   OR Name LIKE '%soup%'
+   OR Name LIKE '%roast%'
+   OR Name LIKE '%curry%'
+   OR Name LIKE '%fish%'
+   OR Name LIKE '%shrimp%'
+   OR Name LIKE '%rice%'
+   OR Name LIKE '%vegetable%'
+   OR Name LIKE '%noodle%'
+   OR Name LIKE '%dinner%'
+   OR Name LIKE '%pork%'
+   OR Name LIKE '%beef%'
+   OR Name LIKE '%lamb%'
+   OR Name LIKE '%turkey%';

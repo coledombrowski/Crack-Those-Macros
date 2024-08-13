@@ -1,0 +1,170 @@
+git log --author="CDUTK"
+
+commit af33fbd5148d5cb594dc126276c8e55b6da92f2b
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 25 18:43:11 2024 -0400
+
+    Delete backend/meal reccomendation/meal-suggestion.py
+
+commit 1f776e8b758eede831cbd9e7487394080f7dee99
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Tue Jul 23 23:37:10 2024 -0400
+
+    updates
+
+commit 038e9839471f311a1c5ae6832a7d50303dba171d
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Tue Jul 23 23:34:39 2024 -0400
+
+    Add files via upload
+
+commit da0aabc2160aa8090f7db11560250f65a065ef78
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Tue Jul 23 23:32:24 2024 -0400
+
+    Delete backend/musclegainalgorithm/mealsuggestionalgo2-dynamic.py
+
+commit 9f5833ccbd02c5a4555331892a3159c9d0b74f2d
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Tue Jul 23 23:32:14 2024 -0400
+
+    Rename algo2-protein.py to protein-intake-algorithm.py
+
+commit 6b0548be842ed3c43e9b53ad6b336fe38197cbbb
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Tue Jul 23 23:31:32 2024 -0400
+
+    dynamic meal population - skeleton
+
+commit cff942f8311a2c0099a0234778fc155dd6de9d44
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Tue Jul 23 23:28:12 2024 -0400
+
+    Rename mealsuggalgo.py to meal-suggestion.py
+
+commit c93e3e2e5af98b8084903c5509cbabfab5608e11
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Tue Jul 23 23:27:48 2024 -0400
+
+    Rename coledombrowski-p1.pdf to Layout
+
+commit ca254cfb928ffb714e40dbe85cccfe2563bb763d
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Sun Jul 21 23:31:41 2024 -0400
+
+    Add files via upload
+
+commit 6b9e67910606d9e1d43f54f22c19a7df95fddc16
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:19:08 2024 -0400
+
+    Delete frontend/public/50x65-removebg-preview.png
+    
+    commit 1ad63e7772e6ff78ebb48341756aa24c153979a7
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:18:21 2024 -0400
+
+    Delete frontend/public/100x130-removebg-preview.png
+
+commit d1af2b99c7e3cbbe9c0734b08d81d0599801450a
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:18:05 2024 -0400
+
+    Add files via upload
+
+commit 66670ea3feb9676c5a5ba8b48d9415f91da41dbe
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:17:08 2024 -0400
+
+    Add files via upload
+
+commit d76b8adaa8c7ebb2df79189ff0299e16d0d0c503
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:16:54 2024 -0400
+
+    Delete frontend/public/Logo 2/50x65.png
+
+commit 717401e396e659f463e0fc9fee474bb283a4ac42
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:16:45 2024 -0400
+
+    Delete frontend/public/Logo 2/500x650.png
+
+commit f23b6dcca694ea642ebbe3df7f442a032947c6ba
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:16:38 2024 -0400
+
+    Delete frontend/public/Logo 2/250x325.png
+
+commit 8425b5b20e8912cb42ad9469099593341a3695ec
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:16:29 2024 -0400
+
+    Delete frontend/public/Logo 2/100x130.png
+
+commit 7561819e665d8c73bf04044b958c7a17d110985c
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 18 18:14:28 2024 -0400
+
+    Add files via upload
+
+commit f4cbd1fb540cf79d32286ac395ec2e2fb8b2cfc1
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Wed Jul 17 23:32:44 2024 -0400
+
+    Added CTM Logo - w/ Different Image Sizes
+
+commit de2d2fce92dea665d652bde06baac75339ccb5d9
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 23:33:46 2024 -0400
+
+    Add files via upload
+    
+    commit 1181bc0322d24e0f9d913db605795878d3fc4414
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 20:58:22 2024 -0400
+
+    M5.12 - Cole Dombrowski
+
+commit 66ad169fcc00c23fefae9503c62b7a4dd8b47561
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 20:57:56 2024 -0400
+
+    Delete Deliverables/Sprint 1/CDOMBRO2.pdf
+
+commit 8820f942834e7ff42e59041dcdb8f9e7001d15e6
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 20:57:28 2024 -0400
+
+    M5.12 - Cole Dombrowski
+
+commit c1e30d53cc73ddf8fc2d8ef90825617337b9a2ba
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 20:56:53 2024 -0400
+
+    Delete Deliverables/Sprint 1/coledombrowski-p1.pdf
+
+commit 7321178bcd38ccfe710d63992e318ea413354875
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 20:56:40 2024 -0400
+
+    Delete Deliverables/Sprint 1/coledombrowski-s1.py
+
+commit d85840fd0d978e6bbcf25ac1b974bf5a196d7889
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 20:16:14 2024 -0400
+
+    Layout
+
+commit ab6b69a15478a3584382b25bdd202b9a1f223aa5
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 20:04:35 2024 -0400
+
+    Algorithm - Calories
+
+commit 577fb777ea23830bcc2b67f7f95131e6aefe2b5d
+Author: CDUTK <cdombro2@vols.utk.edu>
+Date:   Thu Jul 11 00:37:41 2024 -0400
+
+    Add files via upload
+(END)

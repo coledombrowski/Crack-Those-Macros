@@ -1,0 +1,36 @@
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  1) import pyodbc
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  2) import pandas as pd
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  3) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  4) server = 'crackthosemacros.database.windows.net'
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  5) database = 'crackthosemacros'
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  6) username = 'admin_p'
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  7) password = input()
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  8) driver = '{SQL Server}'  # Adjust driver as needed
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400  9) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 10) conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 11) connection = pyodbc.connect(conn_str)
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 12) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 13) # Function to fetch tables and columns
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 14) def fetch_schema(connection):
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 15)     query = """
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 16)     SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 17)     FROM INFORMATION_SCHEMA.COLUMNS 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 18)     WHERE TABLE_CATALOG = ? 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 19)     ORDER BY TABLE_NAME, ORDINAL_POSITION
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 20)     """
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 21)     return pd.read_sql(query, connection, params=[database])
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 22) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 23) # Function to write schema to a text file
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 24) def write_schema_to_file(schema, filename="database_schema.txt"):
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 25)     with open(filename, 'w') as f:
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 26)         current_table = ''
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 27)         for index, row in schema.iterrows():
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 28)             if current_table != row['TABLE_NAME']:
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 29)                 current_table = row['TABLE_NAME']
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 30)                 f.write(f"\nTable: {current_table}\n")
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 31)                 f.write("Columns:\n")
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 32)             f.write(f"  {row['COLUMN_NAME']} ({row['DATA_TYPE']})\n")
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 33) 
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 34) # Fetch the schema and write to file
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 35) schema = fetch_schema(connection)
+7472fc19 (aparedes0212 2024-07-11 20:22:50 -0400 36) write_schema_to_file(schema)

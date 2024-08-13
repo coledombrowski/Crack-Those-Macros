@@ -1,0 +1,124 @@
+Goal,Amount,Pounds,Meal Time,Weight Range,Suggestion,Calories
+gain_weight,More weight,15.0,Breakfast,0-99 lb,Meal Suggestion 1,600
+gain_weight,More weight,15.0,Breakfast,100-150 lb,Meal Suggestion 2,600
+gain_weight,More weight,15.0,Breakfast,151-200 lb,Meal Suggestion 3,600
+gain_weight,More weight,15.0,Breakfast,201-250 lb,Meal Suggestion 4,600
+gain_weight,More weight,15.0,Breakfast,251-300 lb,Meal Suggestion 5,600
+gain_weight,More weight,15.0,Lunch,0-99 lb,Meal Suggestion 6,700
+gain_weight,More weight,15.0,Lunch,100-150 lb,Meal Suggestion 7,700
+gain_weight,More weight,15.0,Lunch,151-200 lb,Meal Suggestion 8,700
+gain_weight,More weight,15.0,Lunch,201-250 lb,Meal Suggestion 9,700
+gain_weight,More weight,15.0,Lunch,251-300 lb,Meal Suggestion 10,700
+gain_weight,More weight,15.0,Dinner,0-99 lb,Meal Suggestion 11,700
+gain_weight,More weight,15.0,Dinner,100-150 lb,Meal Suggestion 12,700
+gain_weight,More weight,15.0,Dinner,151-200 lb,Meal Suggestion 13,700
+gain_weight,More weight,15.0,Dinner,201-250 lb,Meal Suggestion 14,700
+gain_weight,More weight,15.0,Dinner,251-300 lb,Meal Suggestion 15,700
+gain_weight,More weight,20.0,Breakfast,0-99 lb,Meal Suggestion 16,650
+gain_weight,More weight,20.0,Breakfast,100-150 lb,Meal Suggestion 17,650
+gain_weight,More weight,20.0,Breakfast,151-200 lb,Meal Suggestion 18,650
+gain_weight,More weight,20.0,Breakfast,201-250 lb,Meal Suggestion 19,650
+gain_weight,More weight,20.0,Breakfast,251-300 lb,Meal Suggestion 20,650
+gain_weight,More weight,20.0,Lunch,0-99 lb,Meal Suggestion 21,750
+gain_weight,More weight,20.0,Lunch,100-150 lb,Meal Suggestion 22,750
+gain_weight,More weight,20.0,Lunch,151-200 lb,Meal Suggestion 23,750
+gain_weight,More weight,20.0,Lunch,201-250 lb,Meal Suggestion 24,750
+gain_weight,More weight,20.0,Lunch,251-300 lb,Meal Suggestion 25,750
+gain_weight,More weight,20.0,Dinner,0-99 lb,Meal Suggestion 26,750
+gain_weight,More weight,20.0,Dinner,100-150 lb,Meal Suggestion 27,750
+gain_weight,More weight,20.0,Dinner,151-200 lb,Meal Suggestion 28,750
+gain_weight,More weight,20.0,Dinner,201-250 lb,Meal Suggestion 29,750
+gain_weight,More weight,20.0,Dinner,251-300 lb,Meal Suggestion 30,750
+gain_weight,A little weight,5.0,Breakfast,0-99 lb,Meal Suggestion 31,600
+gain_weight,A little weight,5.0,Breakfast,100-150 lb,Meal Suggestion 32,600
+gain_weight,A little weight,5.0,Breakfast,151-200 lb,Meal Suggestion 33,600
+gain_weight,A little weight,5.0,Breakfast,201-250 lb,Meal Suggestion 34,600
+gain_weight,A little weight,5.0,Breakfast,251-300 lb,Meal Suggestion 35,600
+gain_weight,A little weight,5.0,Lunch,0-99 lb,Meal Suggestion 36,600
+gain_weight,A little weight,5.0,Lunch,100-150 lb,Meal Suggestion 37,600
+gain_weight,A little weight,5.0,Lunch,151-200 lb,Meal Suggestion 38,600
+gain_weight,A little weight,5.0,Lunch,201-250 lb,Meal Suggestion 39,600
+gain_weight,A little weight,5.0,Lunch,251-300 lb,Meal Suggestion 40,600
+gain_weight,A little weight,5.0,Dinner,0-99 lb,Meal Suggestion 41,700
+gain_weight,A little weight,5.0,Dinner,100-150 lb,Meal Suggestion 42,700
+gain_weight,A little weight,5.0,Dinner,151-200 lb,Meal Suggestion 43,700
+gain_weight,A little weight,5.0,Dinner,201-250 lb,Meal Suggestion 44,700
+gain_weight,A little weight,5.0,Dinner,251-300 lb,Meal Suggestion 45,700
+gain_weight,A little weight,10.0,Breakfast,0-99 lb,Meal Suggestion 46,600
+gain_weight,A little weight,10.0,Breakfast,100-150 lb,Meal Suggestion 47,600
+gain_weight,A little weight,10.0,Breakfast,151-200 lb,Meal Suggestion 48,600
+gain_weight,A little weight,10.0,Breakfast,201-250 lb,Meal Suggestion 49,600
+gain_weight,A little weight,10.0,Breakfast,251-300 lb,Meal Suggestion 50,600
+gain_weight,A little weight,10.0,Lunch,0-99 lb,Meal Suggestion 51,600
+gain_weight,A little weight,10.0,Lunch,100-150 lb,Meal Suggestion 52,600
+gain_weight,A little weight,10.0,Lunch,151-200 lb,Meal Suggestion 53,600
+gain_weight,A little weight,10.0,Lunch,201-250 lb,Meal Suggestion 54,600
+gain_weight,A little weight,10.0,Lunch,251-300 lb,Meal Suggestion 55,600
+gain_weight,A little weight,10.0,Dinner,0-99 lb,Meal Suggestion 56,700
+gain_weight,A little weight,10.0,Dinner,100-150 lb,Meal Suggestion 57,700
+gain_weight,A little weight,10.0,Dinner,151-200 lb,Meal Suggestion 58,700
+gain_weight,A little weight,10.0,Dinner,201-250 lb,Meal Suggestion 59,700
+gain_weight,A little weight,10.0,Dinner,251-300 lb,Meal Suggestion 60,700
+maintain_weight,,,Breakfast,,Meal Suggestion 61,600
+maintain_weight,,,Lunch,,Meal Suggestion 62,600
+maintain_weight,,,Dinner,,Meal Suggestion 63,700
+lose_weight,Lose more weight,15.0,Breakfast,0-99 lb,Meal Suggestion 64,500
+lose_weight,Lose more weight,15.0,Breakfast,100-150 lb,Meal Suggestion 65,500
+lose_weight,Lose more weight,15.0,Breakfast,151-200 lb,Meal Suggestion 66,500
+lose_weight,Lose more weight,15.0,Breakfast,201-250 lb,Meal Suggestion 67,500
+lose_weight,Lose more weight,15.0,Breakfast,251-300 lb,Meal Suggestion 68,500
+lose_weight,Lose more weight,15.0,Lunch,0-99 lb,Meal Suggestion 69,450
+lose_weight,Lose more weight,15.0,Lunch,100-150 lb,Meal Suggestion 70,450
+lose_weight,Lose more weight,15.0,Lunch,151-200 lb,Meal Suggestion 71,450
+lose_weight,Lose more weight,15.0,Lunch,201-250 lb,Meal Suggestion 72,450
+lose_weight,Lose more weight,15.0,Lunch,251-300 lb,Meal Suggestion 73,450
+lose_weight,Lose more weight,15.0,Dinner,0-99 lb,Meal Suggestion 74,600
+lose_weight,Lose more weight,15.0,Dinner,100-150 lb,Meal Suggestion 75,600
+lose_weight,Lose more weight,15.0,Dinner,151-200 lb,Meal Suggestion 76,600
+lose_weight,Lose more weight,15.0,Dinner,201-250 lb,Meal Suggestion 77,600
+lose_weight,Lose more weight,15.0,Dinner,251-300 lb,Meal Suggestion 78,600
+lose_weight,Lose more weight,20.0,Breakfast,0-99 lb,Meal Suggestion 79,350
+lose_weight,Lose more weight,20.0,Breakfast,100-150 lb,Meal Suggestion 80,350
+lose_weight,Lose more weight,20.0,Breakfast,151-200 lb,Meal Suggestion 81,350
+lose_weight,Lose more weight,20.0,Breakfast,201-250 lb,Meal Suggestion 82,350
+lose_weight,Lose more weight,20.0,Breakfast,251-300 lb,Meal Suggestion 83,350
+lose_weight,Lose more weight,20.0,Lunch,0-99 lb,Meal Suggestion 84,400
+lose_weight,Lose more weight,20.0,Lunch,100-150 lb,Meal Suggestion 85,400
+lose_weight,Lose more weight,20.0,Lunch,151-200 lb,Meal Suggestion 86,400
+lose_weight,Lose more weight,20.0,Lunch,201-250 lb,Meal Suggestion 87,400
+lose_weight,Lose more weight,20.0,Lunch,251-300 lb,Meal Suggestion 88,400
+lose_weight,Lose more weight,20.0,Dinner,0-99 lb,Meal Suggestion 89,600
+lose_weight,Lose more weight,20.0,Dinner,100-150 lb,Meal Suggestion 90,600
+lose_weight,Lose more weight,20.0,Dinner,151-200 lb,Meal Suggestion 91,600
+lose_weight,Lose more weight,20.0,Dinner,201-250 lb,Meal Suggestion 92,600
+lose_weight,Lose more weight,20.0,Dinner,251-300 lb,Meal Suggestion 93,600
+lose_weight,A little weight,5.0,Breakfast,0-99 lb,Meal Suggestion 94,400
+lose_weight,A little weight,5.0,Breakfast,100-150 lb,Meal Suggestion 95,400
+lose_weight,A little weight,5.0,Breakfast,151-200 lb,Meal Suggestion 96,400
+lose_weight,A little weight,5.0,Breakfast,201-250 lb,Meal Suggestion 97,400
+lose_weight,A little weight,5.0,Breakfast,251-300 lb,Meal Suggestion 98,400
+lose_weight,A little weight,5.0,Lunch,0-99 lb,Meal Suggestion 99,500
+lose_weight,A little weight,5.0,Lunch,100-150 lb,Meal Suggestion 100,500
+lose_weight,A little weight,5.0,Lunch,151-200 lb,Meal Suggestion 101,500
+lose_weight,A little weight,5.0,Lunch,201-250 lb,Meal Suggestion 102,500
+lose_weight,A little weight,5.0,Lunch,251-300 lb,Meal Suggestion 103,500
+lose_weight,A little weight,5.0,Dinner,0-99 lb,Meal Suggestion 104,500
+lose_weight,A little weight,5.0,Dinner,100-150 lb,Meal Suggestion 105,500
+lose_weight,A little weight,5.0,Dinner,151-200 lb,Meal Suggestion 106,500
+lose_weight,A little weight,5.0,Dinner,201-250 lb,Meal Suggestion 107,500
+lose_weight,A little weight,5.0,Dinner,251-300 lb,Meal Suggestion 108,500
+lose_weight,A little weight,10.0,Breakfast,0-99 lb,Meal Suggestion 109,350
+lose_weight,A little weight,10.0,Breakfast,100-150 lb,Meal Suggestion 110,350
+lose_weight,A little weight,10.0,Breakfast,151-200 lb,Meal Suggestion 111,350
+lose_weight,A little weight,10.0,Breakfast,201-250 lb,Meal Suggestion 112,350
+lose_weight,A little weight,10.0,Breakfast,251-300 lb,Meal Suggestion 113,350
+lose_weight,A little weight,10.0,Lunch,0-99 lb,Meal Suggestion 114,450
+lose_weight,A little weight,10.0,Lunch,100-150 lb,Meal Suggestion 115,450
+lose_weight,A little weight,10.0,Lunch,151-200 lb,Meal Suggestion 116,450
+lose_weight,A little weight,10.0,Lunch,201-250 lb,Meal Suggestion 117,450
+lose_weight,A little weight,10.0,Lunch,251-300 lb,Meal Suggestion 118,450
+lose_weight,A little weight,10.0,Dinner,0-99 lb,Meal Suggestion 119,550
+lose_weight,A little weight,10.0,Dinner,100-150 lb,Meal Suggestion 120,550
+lose_weight,A little weight,10.0,Dinner,151-200 lb,Meal Suggestion 121,550
+lose_weight,A little weight,10.0,Dinner,201-250 lb,Meal Suggestion 122,550
+lose_weight,A little weight,10.0,Dinner,251-300 lb,Meal Suggestion 123,550

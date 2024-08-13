@@ -1,0 +1,5 @@
+CREATE TABLE [dbo].[UserLog] (
+    Username VARCHAR(255),
+    food_id NVARCHAR(MAX) NOT NULL,
+    insert_datetime DATETIME NOT NULL
+);

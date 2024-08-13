@@ -1,0 +1,33 @@
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  1) CREATE VIEW v_UserGoals AS
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  2) SELECT
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  3)     Username,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  4)     U.Goal,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  5)     U.Weight,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  6)     U.Goal_Amount,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  7)     U.Goal_Pound,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  8)     SUM(Calories) AS TOTAL_CALORIES
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400  9) FROM
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 10)     Users U
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 11) LEFT JOIN
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 12)     [dbo].[NutritionPlan] N
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 13) ON
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 14)     UPPER(REPLACE(U.Goal, ' ', '_')) = UPPER(N.Goal)
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 15)     AND ISNULL(U.Goal_Amount, 0) = ISNULL(N.Amount, 0)
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 16)     AND ISNULL(U.Weight, 0) BETWEEN
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 17)         CASE
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 18)             WHEN PATINDEX('%[0-9]-%[0-9]%', ISNULL(N.WeightRange, '')) > 0
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 19)             THEN CAST(SUBSTRING(N.WeightRange, 1, CHARINDEX('-', N.WeightRange) - 1) AS INT)
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 20)             ELSE 0
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 21)         END
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 22)         AND CASE
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 23)             WHEN PATINDEX('%[0-9]-%[0-9]%', ISNULL(N.WeightRange, '')) > 0
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 24)             THEN CAST(SUBSTRING(N.WeightRange, CHARINDEX('-', N.WeightRange) + 1, CHARINDEX(' ', N.WeightRange + ' ') - CHARINDEX('-', N.WeightRange) - 1) AS INT)
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 25)             ELSE 1000
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 26)         END
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 27)     AND ISNULL(U.Goal_Pound, 0) = ISNULL(N.Pounds, 0)
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 28) GROUP BY
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 29)     Username,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 30)     U.Goal,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 31)     U.Weight,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 32)     U.Goal_Amount,
+4a535ca9 (aparedes0212 2024-07-16 23:00:35 -0400 33)     U.Goal_Pound;

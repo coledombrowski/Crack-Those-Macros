@@ -1,0 +1,61 @@
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400   1) import random
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400   2) import pyodbc
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400   3) import pandas as pd
+0e150f9b backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-25 00:30:42 -0400   4) import sys
+0e150f9b backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-25 00:30:42 -0400   5) import os
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400   6) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400   7) server = 'crackthosemacros.database.windows.net'
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400   8) database = 'crackthosemacros'
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400   9) username = 'viewonly'
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  10) password = 'CrackThoseMacros!2024'
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  11) driver = '{SQL Server}'  # Adjust driver as needed
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  12) conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  13) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  15)     delta = 0
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  16)     cursor = pyodbc.connect(conn_str)
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  17) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  18)     query = f"""
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  19)         SELECT *
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  20)         FROM v_All_Food_Standardized
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  21)         WHERE PROTEIN = {protein_goal}
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  22)         AND CALORIES = (SELECT MIN(CALORIES) FROM v_All_Food_Standardized WHERE PROTEIN = {protein_goal})
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  23)         """
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  24)     results_df = pd.read_sql_query(query, cursor)
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  25) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  26)     # Check if the DataFrame has any rows
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  27)     if not results_df.empty:
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  28)         # Randomly select one row as the recommendation
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  29)         recommendation = results_df.iloc[random.randint(0, len(results_df) - 1)]
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  30)     else:
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  31)         # Set recommendation to None if no rows are returned
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  32)         recommendation = None
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  33) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  34)     while recommendation is None:
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  35)         delta += 10
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  36)         cursor = pyodbc.connect(conn_str)
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  37) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  38)         query = f"""
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  39)             SELECT *
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  40)             FROM v_All_Food_Standardized
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  41)             WHERE PROTEIN >= {protein_goal-1}
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  42)             AND PROTEIN <= {protein_goal+1}
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  43)             AND CALORIES = (SELECT MIN(CALORIES) FROM v_All_Food_Standardized WHERE PROTEIN >= {protein_goal-1} AND PROTEIN <= {protein_goal+1})
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  44)             """
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  45)         results_df = pd.read_sql_query(query, cursor)
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  46) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  47)         # Check if the DataFrame has any rows
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  48)         if not results_df.empty:
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  49)             # Randomly select one row as the recommendation
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  50)             recommendation = results_df.iloc[random.randint(0, len(results_df) - 1)]
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  51)         else:
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  52)             print("Please Wait...")
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  53)             recommendation = None
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  54) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  55)     return recommendation
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  56) 
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  94)                f"an average of {protein_per_meal} grams of protein per meal”"
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  95)                f"\n"
+c9bd10b2 backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-24 23:25:13 -0400  96)                f"Meal suggestion:\n"
+0e150f9b backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-25 00:30:42 -0400  97)                f"{meal_rec}"
+0e150f9b backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-25 00:30:42 -0400  98)                )
+0e150f9b backend/gain muscle/protein-intake-algorithm.py (aparedes0212   2024-07-25 00:30:42 -0400  99)     print(message)

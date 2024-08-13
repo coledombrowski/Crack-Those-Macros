@@ -1,0 +1,16 @@
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  1) CREATE VIEW v_DailyNutritionSummary AS
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  2) SELECT
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  3)     UPPER(Username) AS Username,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  4)     CAST(insert_datetime AS DATE) AS LogDate,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  5)     SUM(CALORIES) AS TotalCalories,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  6)     SUM(TOTAL_FAT) AS TotalFat,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  7)     SUM(CHOLESTEROL) AS TotalCholesterol,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  8)     SUM(SODIUM) AS TotalSodium,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400  9)     SUM(TOTAL_CARBOHYDRATE) AS TotalCarbohydrates,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 10)     SUM(FIBER) AS TotalFiber,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 11)     SUM(SUGARS) AS TotalSugars,
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 12)     SUM(PROTEIN) AS TotalProtein
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 13) FROM
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 14)     v_UserLogFoodDetails
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 15) GROUP BY
+1891b03a (aparedes0212 2024-07-25 00:47:35 -0400 16)     UPPER(Username), CAST(insert_datetime AS DATE);

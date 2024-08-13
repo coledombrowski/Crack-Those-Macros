@@ -1,0 +1,75 @@
+Database Access Instructions
+
+In order to access the database on your local machine, your IP address needs to be added to the SQL server’s firewalls exceptions. Please reach out to Alexander Paredes for assistance.
+
+As of 7/10/2024, the database contains the following tables and views:
+
+Tables
+G_Products – nutrition facts + prices of grocery store items
+G_Stores – Grocery store availability. Maps what products are at what store.
+R_Meals – nutrition facts of restaurant items
+(work in progress) R_Prices – pricing data of restaurant items
+
+Views
+v_All_Grocery – All grocery store items with their nutrition facts, prices, and what location they are from.
+v_All_Restaurant – All restaurant items with their nutrition facts, prices (work in progress), and what location they are from.
+v_All_Food – combines v_All_Grocery and v_All_Restaurant with an additional column identifying if the product/meal is from a grocery store or restaurant
+
+There is a viewonly user with a password of {omitted in github}. This database can be accessed using the SQL Server driver. Please make sure to close all connections when not in use!!
+
+For example it can be accessed via python:
+
+import pyodbc
+import pandas as pd
+
+server = 'crackthosemacros.database.windows.net'
+database = 'crackthosemacros'
+username = 'viewonly'
+password = '{omitted in github}'
+driver = '{SQL Server}'  # Adjust driver as needed
+
+conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+connection = pyodbc.connect(conn_str)
+
+query = "SELECT * FROM [dbo].[v_All_Food]"
+df = pd.read_sql_query(query, connection)
+
+print(df)
+connection.close()
+
+Any questions, please let Alexander Paredes know!
+
+Admin User:
+
+User: Admin_Shared
+Password: {omitted in github}
+
+Example usage:
+
+import pyodbc
+
+server = 'crackthosemacros.database.windows.net'
+database = 'crackthosemacros'
+username = 'Admin_Shared'
+password = '{omitted in github}'
+driver = '{SQL Server}'  # Adjust driver as needed
+
+conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+connection = pyodbc.connect(conn_str)
+cursor = connection.cursor()
+
+sql_command = """
+CREATE TABLE TestTable2 (
+    ID int NOT NULL PRIMARY KEY,
+    Name varchar(255) NOT NULL,
+    Age int,
+    Email varchar(255)
+);
+"""
+
+cursor.execute(sql_command)
+
+# Commit the changes and close the connection
+connection.commit()
+cursor.close()
+connection.close()

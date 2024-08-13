@@ -1,0 +1,800 @@
+=================
+backend\server.py
+=================
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700   1) from flask import Flask, request, session
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700   2) from flask_login import LoginManager, UserMixin, login_user, current_user, login_required, logout_user
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700   3) from dotenv import load_dotenv
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700   4) import pyodbc 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700   5) import pandas as pd 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700   6) import os
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700   7) 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700   8) # App Initialization
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700   9) app = Flask(__name__)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  10) app.secret_key = os.getenv('APP_SECRET_KEY')
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  11) 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  12) # Database Initialization
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  13) load_dotenv()
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  14) db_server = os.getenv('DB_SERVER')
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  15) db_database = os.getenv('DB_NAME')
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  16) db_username = os.getenv('DB_USERNAME')
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  17) db_password = os.getenv('DB_PASSWORD')
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  18) db_driver = os.getenv('DB_DRIVER')
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  19) db_conn_str = f'DRIVER={db_driver};SERVER={db_server};DATABASE={db_database};UID={db_username};PWD={db_password}' 
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  20) 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  21) # User Login Initialization
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  22) login_manager = LoginManager()
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  23) login_manager.init_app(app)
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  24) class User(UserMixin):
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  25) 	pass
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  26) 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  27) # App - Home Page
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  28) @app.route("/")
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  29) def home_page():
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  30) 	return # TODO: Implement homepage/dashboard
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  31) 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  32) # App - Account Creation Page
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  33) @app.route("/register-account", methods=['POST'])
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  34) def account_creation_page():
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  35) 	error_message = ''
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  36) 	hasCreatedUser = False
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  37) 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  38) 	username = request.json['username']
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  39) 	password = request.json['password']
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  40) 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  41) 	# Check if User already exists
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  42) 	db_connection = pyodbc.connect(db_conn_str)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  43) 	cursor = db_connection.cursor()
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  44) 	query = f"SELECT COUNT(*) FROM [dbo].[Users] WHERE Username = '{username}'"
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  45) 	cursor.execute(query)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  46) 	count = cursor.fetchone()[0]
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  47) 	
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  48) 	if (count != 0):
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  49) 		error_message = 'An account could not be created - Try a unique Username'
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  50) 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  51) 	# Create the new User
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  52) 	else:
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  53) 		new_user = {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  54) 			'username': username,
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  55) 			'password': password
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  56) 		}
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  57) 		sql_command = f"""
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  58) 			INSERT INTO [dbo].[Users] (Username, Password, Is_First_Login)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  59) 			VALUES ('{username}', '{password}', 1)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  60) 		"""
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  61) 		cursor.execute(sql_command)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  62) 		hasCreatedUser = True
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  63) 	
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  64) 	# Commit the changes and close the connection 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  65) 	db_connection.commit() 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  66) 	cursor.close() 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  67) 	db_connection.close()
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  68) 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  69) 	# Send Response
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  70) 	if (hasCreatedUser):
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  71) 		return {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  72) 			"result": "Success",
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  73) 			"message": "An account has been created"
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  74) 		}, 200
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  75) 	else:
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  76) 		return {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  77) 			"result": "Failed",
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  78) 			"message": error_message
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  79) 		}, 400
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  80) 		
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  81) # App - Login Page
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  82) @app.route("/login-user", methods=['POST'])
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700  83) def login_page():
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  84) 	if current_user.is_active:
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  85) 		return {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  86) 			"result": "Failed",
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  87) 			"message": "Error - User is already logged in"
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  88) 		}, 400
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  89) 	
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  90) 	username = request.json['username']
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  91) 	password = request.json['password']
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  92) 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  93) 	# Check for User Credentials
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  94) 	db_connection = pyodbc.connect(db_conn_str)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  95) 	query = f"SELECT * FROM [dbo].[Users] WHERE Username = '{username}'"
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  96) 	user_result = pd.read_sql_query(query, db_connection)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  97) 	# Commit the changes and close the connection
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700  98) 	db_connection.close()
+f12bbb94 (CalebJonesXCIX 2024-07-02 18:16:09 -0700  99) 
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 100) 	# Send Response
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 101) 	if (not user_result.empty) and (user_result['Password'][0] == password):
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 102) 		user = User()
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 103) 		user.id = username
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 104) 		session['is_first_login'] = str(user_result['Is_First_Login'][0])
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 105) 		
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 106) 		login_user(user)
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 107) 		return {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 108) 			"username": user.id,
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 109) 			"isFirstLogin": session['is_first_login']
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 110) 		}, 200
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 111) 	
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 112) 	else:
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 113) 		return {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 114) 			"result": "Failed",
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 115) 			"message": "Account details are invalid"
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 116) 		}, 401
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 117) 		
+f12bbb94 (CalebJonesXCIX 2024-07-02 18:16:09 -0700 118) # App - Logout Page
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 119) @app.route('/logout-user')  
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 120) def logout_page():  
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 121)     if current_user.is_active: 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 122)         logout_user()  
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 123)         return {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 124) 			"result": "Success",
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 125) 			"message": "Logged out successfully"
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 126) 		}, 200
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 127) 		
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 128)     else:
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 129)         return {
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 130) 			"result": "Failed",
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 131) 			"message": "Error - You are not logged in"
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 132) 		}, 500
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 133) 
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 134) # App - Get User Login Status
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 135) @app.route('/get-current-user-state')  
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 136) def get_current_user_state():
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 137) 	if current_user.is_active:
+1bf05ad8 (CalebJonesXCIX 2024-07-05 19:14:20 -0700 138) 		return {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 139) 			"result": "True",
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 140) 			"username": current_user.id,
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 141) 			"isFirstLogin": session['is_first_login']
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 142) 		}, 200
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 143) 	else:
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 144) 		return {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 145) 			"result": "False"
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 146) 		}, 200
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 147) 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 148) # Flask-Login Helper
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 149) @login_manager.user_loader  
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 150) def user_loader(username):  
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 151)     user = User()  
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 152)     user.id = username
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 153)     return user
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 154) 
+4457865a (CalebJonesXCIX 2024-07-01 20:45:04 -0700 155) # Run Server
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 156) if __name__ == '__main__':
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 157) 	app.run(debug=True)
+
+=================
+frontend\src\components\Navbar.js
+=================
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  1) import React from 'react';
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  2) 
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  3) function Navbar() {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  4)     return (
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  5)         <nav>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  6)             <div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  7)                 | <a href='/'>Home</a> | <a href='/loginPage'>Login</a> | <a href='/logout'>Logout</a> |
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  8)             </div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  9)         </nav>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 10)     );
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 11) }
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 12) 
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 13) export default Navbar;
+
+=================
+frontend\src\css\App.css
+=================
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700  1) .Navbar {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700  2) 	text-align: right;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700  3) }
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700  4) 
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700  5) .App {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700  6) 	text-align: left;
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700  7) }
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700  8) 
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700  9) .App-logo {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 10) 	height: 40vmin;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 11) 	pointer-events: none;
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 12) }
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 13) 
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 14) @media (prefers-reduced-motion: no-preference) {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 15) 	.App-logo {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 16) 		animation: App-logo-spin infinite 20s linear;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 17) 	}
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 18) }
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 19) 
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 20) .App-header {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 21) 	background-color: #282c34;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 22) 	min-height: 100vh;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 23) 	display: flex;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 24) 	flex-direction: column;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 25) 	align-items: center;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 26) 	justify-content: center;
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 27) 	font-size: calc(10px + 2vmin);
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 28) 	color: white;
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 29) }
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 30) 
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 31) .App-link {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 32) 	color: #61dafb;
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 33) }
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 34) 
+^1ccb9e9 frontend/src/App.css     (CalebJonesXCIX 2024-06-27 21:25:53 -0700 35) @keyframes App-logo-spin {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 36) 	from {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 37) 		transform: rotate(0deg);
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 38) 	}
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 39) 
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 40) 	to {
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 41) 		transform: rotate(360deg);
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 42) 	}
+732dc941 frontend/src/css/App.css (CalebJonesXCIX 2024-07-13 11:32:19 -0700 43) }
+
+=================
+frontend\src\pages\CreateAccount.js
+=================
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  1) import React, { useState } from 'react';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  2) import axiosInstance from 'axios';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  3) import { useNavigate } from 'react-router-dom';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  4) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  5) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  6) const CreateAccount = () => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  7) 	const [username, setUsername] = useState('');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  8) 	const [password, setPassword] = useState('');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  9) 	const [error, setError] = useState('');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 10) 	const navigate = useNavigate();
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 11) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 12) 	const handleSubmit = async (e) => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 13) 		e.preventDefault();
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 14) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 15) 		try {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 16) 			const response = await axiosInstance.post('/register-account', {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 17) 				username,
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 18) 				password,
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 19) 			});
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 20) 			console.log(response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 21) 			navigate('/loginPage');// Navigate to login page after successful account creation
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 22) 		} catch (error) {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 23) 			console.error(error.response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 24) 			setError(error.response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 25) 		}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 26) 	};
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 27) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 28) 	return (
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 29) 		<div>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 30) 			<h2>Create Account</h2>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 31) 			<form onSubmit={handleSubmit}>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 32) 				<input
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 33) 					type="text"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 34) 					placeholder="Username"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 35) 					value={username}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 36) 					onChange={(e) => setUsername(e.target.value)}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 37) 					required
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 38) 				/>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 39) 				<br />
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 40) 				<input
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 41) 					type="password"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 42) 					placeholder="Password"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 43) 					value={password}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 44) 					onChange={(e) => setPassword(e.target.value)}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 45) 					required
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 46) 				/>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 47) 				<br />
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 48) 				<button type="submit">Create Account</button>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 49) 				{error && <p style={{ color: 'red' }}>{error}</p>}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 50) 			</form>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 51) 			<br></br>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 52) 			<br></br>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 53) 			Already have an account? <button onClick={() => navigate('/loginPage')}>Login</button>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 54) 		</div>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 55) 	);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 56) };
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 57) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 58) export default CreateAccount;
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 59) 
+
+=================
+frontend\src\pages\HomePage.js
+=================
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  1) import React, { useState, useEffect } from 'react';
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  2) import parse from 'html-react-parser'
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  3) import { useNavigate } from 'react-router-dom';
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  4) import axiosInstance from 'axios';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  5) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  6) // TODO: Update with a more useful homepage
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  7) const HomePage = () => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  8) 	const navigate = useNavigate();
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  9) 	const [loginData, setLoginData] = useState({
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 10) 		isLoggedIn: "",
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 11) 		username: "",
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 12) 		isFirstLogin: ""
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 13) 	});
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 14) 
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 15) 	useEffect(() => {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 16) 		fetchData();
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 17) 	}, []);
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 18) 
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 19) 	const fetchData = async () => {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 20) 		try {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 21) 			const response = await axiosInstance.get('/get-current-user-state');
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 22) 			setLoginData({
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 23) 				isLoggedIn: response.data.result,
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 24) 				username: response.data?.username,
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 25) 				isFirstLogin: response.data?.isFirstLogin
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 26) 			});
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 27) 		} catch (error) {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 28) 			console.error(error);
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 29) 		}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 30) 	};
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 31) 	// Get instance variables
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 32) 	const isLoggedIn = loginData.isLoggedIn === "True" ? true : false
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 33) 	const isFirstLogin = loginData.isFirstLogin ? loginData.isFirstLogin : false;
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 34) 	const username = loginData.username ? loginData.username : " ";
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 35) 	let firstTimeDisplay = "";
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 36) 
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 37) 	if (isFirstLogin) {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 38) 		firstTimeDisplay = `
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 39) 			<h3>Thank you for making an account ${username}!</h3>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 40) 			<p>Since this is your first time, please take a moment to fill out a quick questionnaire.</p>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 41) 		`;
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 42) 	}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 43) 
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 44) 	if (isLoggedIn) {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 45) 		return (
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 46) 			<div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 47) 				<h1>Welcome to the Home Page {username}</h1>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 48) 				{parse(firstTimeDisplay)}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 49) 				<button onClick={() => navigate('/questionnaire')}>Go to Questionnaire!</button>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 50) 			</div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 51) 		);
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 52) 	} else {
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 53) 		return (
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 54) 			<div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 55) 				<h1>Welcome to the Home Page</h1>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 56) 				<h2>Create an Account</h2>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 57) 				<button onClick={() => navigate('/createAccount')}>Go to Create Account</button>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 58) 				<br></br>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 59) 				<h2>Login</h2>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 60) 				<button onClick={() => navigate('/loginPage')}>Go to Login</button>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 61) 			</div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 62) 		);
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 63) 	}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 64) };
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 65) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 66) export default HomePage;
+
+=================
+frontend\src\pages\LoginPage.js
+=================
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  1) import React, { useState } from 'react';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  2) import axiosInstance from 'axios'; // Path to axios configuration
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  3) import { useNavigate } from 'react-router-dom';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  4) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  5) const LoginPage = () => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  6) 	const [username, setUsername] = useState('');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  7) 	const [password, setPassword] = useState('');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  8) 	const [error, setError] = useState('');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  9) 	const navigate = useNavigate();
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 10) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 11) 	const handleSubmit = async (e) => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 12) 		e.preventDefault();
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 13) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 14) 		try {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 15) 			const response = await axiosInstance.post('/login-user', {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 16) 				username,
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 17) 				password,
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 18) 			});
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 19) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 20) 			console.log('Login successful:', response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 21) 			navigate('/'); // Navigate to home page after successful login
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 22) 		} catch (error) {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 23) 			console.error('Login failed:', error.response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 24) 			setError(error.response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 25) 		}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 26) 	};
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 27) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 28) 	return (
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 29) 		<div>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 30) 			<h2>Login</h2>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 31) 			<form onSubmit={handleSubmit}>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 32) 				<input
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 33) 					type="text"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 34) 					placeholder="Username"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 35) 					value={username}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 36) 					onChange={(e) => setUsername(e.target.value)}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 37) 					required
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 38) 				/>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 39) 				<br />
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 40) 				<input
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 41) 					type="password"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 42) 					placeholder="Password"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 43) 					value={password}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 44) 					onChange={(e) => setPassword(e.target.value)}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 45) 					required
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 46) 				/>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 47) 				<br />
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 48) 				<button type="submit">Login</button>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 49) 				{error && <p style={{ color: 'red' }}>{error}</p>}
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 50) 			</form>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 51) 			<br></br>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 52) 			<br></br>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 53) 			New User? <button onClick={() => navigate('/createAccount')}>Create Account</button>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 54) 		</div>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 55) 	);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 56) };
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 57) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 58) export default LoginPage;
+
+
+=================
+frontend\src\pages\Logout.js
+=================
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  1) import React, { useState, useEffect } from 'react';
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  2) import axiosInstance from 'axios';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  3) import { useNavigate } from 'react-router-dom';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  4) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  5) // TODO: Update Logout functionality
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  6) const Logout = () => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  7)     const [result, setResult] = useState({
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  8)         result: "",
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  9)         message: "",
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 10)     });
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 11)     const [error, setError] = useState('');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 12)     const navigate = useNavigate();
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 13) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 14)     useEffect(() => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 15)         fetchData();
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 16)     }, []);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 17) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 18)     const fetchData = async () => {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 19)         try {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 20)             const response = await axiosInstance.get('/logout-user');
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 21)             setResult({
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 22)                 result: response.data.result,
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 23)                 message: response.data.message
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 24)             });
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 25)             console.log('Logout successful:', response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 26)         } catch (error) {
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 27)             console.error('Logout failed:', error.response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 28)             setError(error.response.data.message);
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 29)         }
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 30)     };
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 31) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 32)     return (
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 33)         <div>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 34)             <h2>{result.result}</h2>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 35)             <h3>{result.message}</h3>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 36)             {error && <p style={{ color: 'red' }}>{error}</p>}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 37)             <button onClick={() => navigate('/')}>Return to Home</button>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 38)         </div>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 39)     );
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 40) };
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 41) 
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 42) export default Logout;
+
+
+=================
+frontend\src\pages\Questionnaire.js
+=================
+7889a915 frontend/src/Questionnaire.js       (Nick Dubauskas 2024-07-11 09:15:30 -0700   1) import React, { useState } from 'react';
+7889a915 frontend/src/Questionnaire.js       (Nick Dubauskas 2024-07-11 09:15:30 -0700   2) 
+7889a915 frontend/src/Questionnaire.js       (Nick Dubauskas 2024-07-11 09:15:30 -0700   3) const Questionnaire = () => {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700   4) 	const [step, setStep] = useState(0);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700   5) 	const [goal, setGoal] = useState('');
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700   6) 	const [responses, setResponses] = useState({
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700   7) 		goal: '',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700   8) 		question2: '',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700   9) 		question3: '',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  10) 		question4Ft: '',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  11) 		hquestion4In: '',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  12) 		question5: '',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  13) 	});
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  14) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  15) 	const handleGoalChange = (event) => {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  16) 		setGoal(event.target.value);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  17) 	};
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  18) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  19) 	const handleNext = () => {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  20) 		if (step === 0 && !goal) {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  21) 			alert('Please select a goal');
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  22) 		} else {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  23) 			setStep(step + 1);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  24) 		}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  25) 		if (step === 4) {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  26) 			handleSubmit();
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  27) 		}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  28) 	};
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  29) 	const handleSubmit = async () => {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  30) 		const data = {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  31) 			goal,
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  32) 			gender: responses.question2,
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  33) 			age: responses.question3,
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  34) 			height_ft: responses.question4Ft,
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  35) 			height_in: responses.question4In,
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  36) 			weight_lb: responses.question5,
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  37) 		};
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  38) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  39) 		try {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  40) 			const response = await fetch('http://localhost:5000/api/save_user', {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  41) 				method: 'POST',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  42) 				headers: {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  43) 					'Content-Type': 'application/json',
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  44) 				},
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  45) 				body: JSON.stringify(data),
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  46) 			});
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  47) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  48) 			if (response.ok) {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  49) 				const result = await response.json();
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  50) 				console.log('Data saved successfully:', result);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  51) 			} else {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  52) 				console.error('Error saving data');
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  53) 			}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  54) 		} catch (error) {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  55) 			console.error('Error:', error);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  56) 		}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  57) 	};
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  58) 	const handleResponseChange = (event) => {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  59) 		const { name, value } = event.target;
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  60) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  61) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  62) 		setResponses({ ...responses, [name]: value });
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  63) 	};
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  64) 	const validateStep = () => {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  65) 		switch (step) {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  66) 			case 0:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  67) 				return goal !== '';
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  68) 			case 1:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  69) 				return responses.question2 !== '';
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  70) 			case 2:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  71) 				return responses.question3 !== '';
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  72) 			case 3:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  73) 				return responses.question4Ft !== '' && responses.question4In !== '';
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  74) 			case 4:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  75) 				return responses.question5 !== '';
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  76) 			default:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  77) 				return true;
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  78) 		}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  79) 	};
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  80) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  81) 	const renderStep = () => {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  82) 		switch (step) {
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  83) 			case 0:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  84) 				return (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  85) 					<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  86) 						<h2>Question 1: Select one that fits your goal</h2>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  87) 						<form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  88) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  89) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  90) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  91) 										type="radio"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  92) 										value="lose-weight"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  93) 										checked={goal === 'lose-weight'}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  94) 										onChange={handleGoalChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  95) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  96) 									Lose Weight
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  97) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  98) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700  99) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 100) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 101) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 102) 										type="radio"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 103) 										value="maintain-weight"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 104) 										checked={goal === 'maintain-weight'}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 105) 										onChange={handleGoalChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 106) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 107) 									Maintain Weight
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 108) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 109) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 110) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 111) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 112) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 113) 										type="radio"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 114) 										value="gain-weight"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 115) 										checked={goal === 'gain-weight'}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 116) 										onChange={handleGoalChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 117) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 118) 									Gain Weight
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 119) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 120) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 121) 						</form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 122) 					</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 123) 				);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 124) 			case 1:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 125) 				return (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 126) 					<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 127) 						<h2>Question 2: Male or Female</h2>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 128) 						<form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 129) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 130) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 131) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 132) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 133) 										type="radio"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 134) 										name="question2"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 135) 										value="male"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 136) 										checked={responses.question2 === 'male'}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 137) 										onChange={handleResponseChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 138) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 139) 									Male
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 140) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 141) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 142) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 143) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 144) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 145) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 146) 										type="radio"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 147) 										name="question2"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 148) 										value="female"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 149) 										checked={responses.question2 === 'female'}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 150) 										onChange={handleResponseChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 151) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 152) 									Female
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 153) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 154) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 155) 						</form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 156) 					</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 157) 				);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 158) 			case 2:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 159) 				return (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 160) 					<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 161) 						<h2>Question 3: What is your age?</h2>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 162) 						<form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 163) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 164) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 165) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 166) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 167) 										type="number"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 168) 										name="question3"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 169) 										value={responses.question3}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 170) 										onChange={handleResponseChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 171) 										min="1"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 172) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 173) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 174) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 175) 						</form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 176) 					</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 177) 				);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 178) 			case 3:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 179) 				return (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 180) 					<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 181) 						<h2>Question 4: What is your height?</h2>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 182) 						<form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 183) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 184) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 185) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 186) 										type="number"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 187) 										name="question4Ft"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 188) 										value={responses.question4Ft}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 189) 										onChange={handleResponseChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 190) 										min="0"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 191) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 192) 									ft.
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 193) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 194) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 195) 							<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 196) 								<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 197) 									type="number"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 198) 									name="question4In"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 199) 									value={responses.question4In}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 200) 									onChange={handleResponseChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 201) 									min="0"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 202) 								/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 203) 								in.
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 204) 							</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 205) 						</form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 206) 					</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 207) 				);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 208) 			case 4:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 209) 				return (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 210) 					<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 211) 						<h2>Question 5: What is your current weight?</h2>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 212) 						<form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 213) 							<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 214) 								<label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 215) 									<input
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 216) 										type="number"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 217) 										name="question5"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 218) 										value={responses.question5}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 219) 										onChange={handleResponseChange}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 220) 										min="0"
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 221) 									/>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 222) 									lb
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 223) 								</label>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 224) 							</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 225) 						</form>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 226) 					</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 227) 				)
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 228) 			default:
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 229) 				return (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 230) 					<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 231) 						<h2>Summary</h2>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 232) 						<p>Goal: {goal}</p>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 233) 						<p>Male or Female: {responses.question2}</p>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 234) 						<p>Age: {responses.question3}</p>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 235) 						<p>Height: {responses.question4Ft}ft {responses.question4In}In</p>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 236) 						<p>Weight: {responses.question5}lb</p>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 237) 					</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 238) 				);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 239) 		}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 240) 	};
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 241) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 242) 	return (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 243) 		<div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 244) 			{renderStep()}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 245) 			{step < 5 && (
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 246) 				<button type="button" onClick={handleNext} disabled={!validateStep()}>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 247) 					Next
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 248) 				</button>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 249) 			)}
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 250) 		</div>
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 251) 	);
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 252) };
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 253) 
+592ae8dd frontend/src/pages/Questionnaire.js (CalebJonesXCIX 2024-07-12 22:03:04 -0700 254) export default Questionnaire;
+
+
+=================
+frontend\src\App.js
+=================
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  1) import React from "react";
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  2) import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  3) import "./css/App.css"
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  4) import CreateAccount from "./pages/CreateAccount";
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  5) import LoginPage from "./pages/LoginPage";
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  6) import Questionnaire from "./pages/Questionnaire";
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  7) import HomePage from "./pages/HomePage";
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  8) import Logout from "./pages/Logout";
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700  9) import Navbar from "./components/Navbar";
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 10) 
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 11) function App() {
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 12) 	return (
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 13) 		// Add a Route for the Pages and indicate the desired URL path
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 14) 		<>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 15) 			<BrowserRouter>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 16) 				<div className="Navbar">
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 17) 					<Navbar />
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 18) 				</div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 19) 				<div className="App">
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 20) 					<div className="pages">
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 21) 						<Routes>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 22) 							{/* A default path to redirect back to Home */}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 23) 							<Route
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 24) 								path="*"
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 25) 								element={<Navigate to="/" />}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 26) 							/>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 27) 							<Route
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 28) 								exact path="/"
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 29) 								element={<HomePage />}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 30) 							/>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 31) 							<Route
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 32) 								path="/createAccount"
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 33) 								element={<CreateAccount />}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 34) 							/>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 35) 							<Route
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 36) 								path="/loginPage"
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 37) 								element={<LoginPage />}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 38) 							/>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 39) 							<Route
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 40) 								path="/questionnaire"
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 41) 								element={<Questionnaire />}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 42) 							/>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 43) 							<Route
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 44) 								path="/logout"
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 45) 								element={<Logout />}
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 46) 							/>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 47) 						</Routes>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 48) 					</div>
+732dc941 (CalebJonesXCIX 2024-07-13 11:32:19 -0700 49) 				</div>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 50) 			</BrowserRouter>
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700 51) 		</>
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 52) 	);
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 53) }
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 54) export default App;
+
+
+=================
+frontend\src\index.js
+=================
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  1) import React from 'react';
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  2) import ReactDOM from 'react-dom/client';
+592ae8dd (CalebJonesXCIX 2024-07-12 22:03:04 -0700  3) import './css/index.css';
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  4) import App from './App';
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  5) 
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  6) const root = ReactDOM.createRoot(document.getElementById('root'));
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  7) root.render(
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  8)   <React.StrictMode>
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700  9)     <App />
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 10)   </React.StrictMode>
+^1ccb9e9 (CalebJonesXCIX 2024-06-27 21:25:53 -0700 11) );

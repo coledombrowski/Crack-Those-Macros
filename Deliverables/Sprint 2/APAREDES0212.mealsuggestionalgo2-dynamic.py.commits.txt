@@ -1,0 +1,110 @@
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400   2) import pyodbc
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400   3) import pandas as pd
+0e150f9b backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-25 00:30:42 -0400   4) from backend.addMeal import accept_meal_entry
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400   5) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400   6) server = 'crackthosemacros.database.windows.net'
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400   7) database = 'crackthosemacros'
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400   8) username = 'viewonly'
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400   9) password = 'CrackThoseMacros!2024'
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  10) driver = '{SQL Server}'  # Adjust driver as needed
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  11) conn_str = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  19) def get_calories(goal, amount, pounds, weight,meal_time):
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  20)     # Base calories based on weight category
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  21)     base_calories = {
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  22)         "0-99 lb": 1400,
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  23)         "100-150 lb": 1800,
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  24)         "151-200 lb": 2200,
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  25)         "201-250 lb": 2600,
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  26)         "251-300 lb": 3000
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  27)     }
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  28) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  29)     # Adjust calories based on goal and amount
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  30)     calorie_adjustment = 0
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  31)     if goal == "Gain weight":
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  32)         if pounds == 15:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  33)             calorie_adjustment = 600 if amount == "A little weight" else 800
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  34)         elif pounds == 20:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  35)             calorie_adjustment = 700 if amount == "A little weight" else 900
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  36)     elif goal == "Lose weight":
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  37)         if pounds == 5:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  38)             calorie_adjustment = -400 if amount == "A little weight" else -600
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  39)         elif pounds == 10:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  40)             calorie_adjustment = -500 if amount == "A little weight" else -700
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  41) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  42)     # Total daily calories
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  43)     total_calories = base_calories[weight] + calorie_adjustment
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  44) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  45)     # Meal distribution
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  46)     meals = {
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  47)         "Breakfast": total_calories * 0.3,
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  48)         "Lunch": total_calories * 0.3,
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  49)         "Dinner": total_calories * 0.4
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  50)     }
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  51) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  52)     return meals[meal_time]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  53) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  54) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  55) def get_meal_recommendation():
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  60)     meal_views = {
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  61)         "Breakfast":"v_Breakfast",
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  62)         "Lunch":"v_Lunch",
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  63)         "Dinner":"v_Dinner"
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  64)     }
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  70)     #initialization of variables to reduce errors
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  71)     amount_choice = "More weight"
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  72)     pounds_choice = 0
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  73)     delta = 0
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  74) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  77)         amount_choice = amounts[get_choice(amounts)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  80)         pounds_choice = pounds_options["Gain weight"][get_choice(pounds_options["Gain weight"])]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  83)         meal_time_choice = meal_times[get_choice(meal_times)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  84)         meal_view_choice = meal_views[meal_time_choice]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  87)         weight_choice = weights[get_choice(weights)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  91)         meal_time_choice = meal_times[get_choice(meal_times)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  92)         meal_view_choice = meal_views[meal_time_choice]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  94)         print("Select your weight range:")
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  95)         weight_choice = weights[get_choice(weights)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400  99)         amount_choice = amounts[get_choice(amounts)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 102)         pounds_choice = pounds_options["Lose weight"][get_choice(pounds_options["Lose weight"])]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 105)         meal_time_choice = meal_times[get_choice(meal_times)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 106)         meal_view_choice = meal_views[meal_time_choice]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 109)         weight_choice = weights[get_choice(weights)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 110) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 111)     calories_choice = get_calories(goal_choice, amount_choice, pounds_choice, weight_choice, meal_time_choice)
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 112) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 113)     cursor = pyodbc.connect(conn_str)
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 114) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 115)     query = f"""
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 116)     SELECT *
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 117)     FROM {meal_view_choice}
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 118)     WHERE CALORIES = {calories_choice}
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 119)     """
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 120)     results_df = pd.read_sql_query(query, cursor)
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 121) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 122)     # Check if the DataFrame has any rows
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 123)     if not results_df.empty:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 124)         # Randomly select one row as the recommendation
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 125)         recommendation = results_df.iloc[random.randint(0, len(results_df) - 1)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 126)     else:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 127)         # Set recommendation to None if no rows are returned
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 128)         recommendation = None
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 129) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 130)     while recommendation is None:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 131)         delta += 10
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 132)         cursor = pyodbc.connect(conn_str)
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 135)             SELECT *
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 136)             FROM {meal_view_choice}
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 137)             WHERE CALORIES >= {calories_choice-delta}
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 138)             AND CALORIES <= {calories_choice+delta}
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 139)             """
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 140)         results_df = pd.read_sql_query(query, cursor)
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 141) 
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 142)         # Check if the DataFrame has any rows
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 143)         if not results_df.empty:
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 144)             # Randomly select one row as the recommendation
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 145)             recommendation = results_df.iloc[random.randint(0, len(results_df) - 1)]
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 147)             print("Please Wait...")
+ad9c38ce backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-24 23:08:12 -0400 148)             recommendation = None
+0e150f9b backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-25 00:30:42 -0400 149)     print(recommendation)
+0e150f9b backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-25 00:30:42 -0400 150)     accept_meal_entry(recommendation)
+0e150f9b backend/meal reccomendation/mealsuggestionalgo2-dynamic.py (aparedes0212 2024-07-25 00:30:42 -0400 153) get_meal_recommendation()
